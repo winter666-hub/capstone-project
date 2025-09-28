@@ -27,7 +27,7 @@ class _MapScreenState extends State<MapScreen> {
   late GoogleMapController mapController;
   final Set<Polyline> _polylines = {};
 
-  final LatLng _center = const LatLng(37.8927, 127.7280); // 한림대학교 정문 근처
+  final LatLng _center = const LatLng(37.8927, 127.7280); // 한림대학교 정문 근처`
 
   final LatLng _hallymMainGate = const LatLng(37.883980, 127.737803);
   final LatLng _hallymLectureHall = const LatLng(37.886313, 127.735751);
