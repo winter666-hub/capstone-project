@@ -1,143 +1,308 @@
+# backend/nutrition/nutrition_api.py
+
 import requests
 from bs4 import BeautifulSoup
+from google.cloud import vision
+import io
 import json
 from datetime import datetime
+import os
+from google.api_core.exceptions import GoogleAPICallError
 
 # ==============================================================================
-# 1. 학식 메뉴 크롤링 또는 수집 로직 (백엔드 팀의 핵심 작업)
+# 1. 수동 관리 데이터베이스 (직접 입력 부분)
+# [TODO]: 여기에 학교 메뉴와 해당 영양 정보를 직접 입력하고 관리해야 합니다.
 # ==============================================================================
-def get_today_menu(date=None):
-    """
-    특정 날짜의 학교 학식 메뉴 데이터를 가져오는 함수입니다.
-    
-    Args:
-        date (str): YYYY-MM-DD 형식의 날짜 문자열. 기본값은 오늘 날짜입니다.
-        
-    Returns:
-        dict: 메뉴 이름 리스트와 식당 정보를 포함하는 딕셔너리.
-    """
-    if date is None:
-        date = datetime.now().strftime("%Y-%m-%d")
-        
-    print(f"[{date}] 날짜의 학식 메뉴를 가져오는 중...")
-    
-    url = "https://example.com/school_cafeteria_menu"  #학식 사이트 주소
+NUTRITION_MANUAL_DB = {
+    # --- 주요 밥류/메인 메뉴 ---
+    "잡곡밥": {
+        "calorie": "306 kcal",  # 1인분(210g) 기준
+        "carbs": "61.6 g",      # 탄수화물
+        "protein": "11.1 g",    # 단백질
+        "fat": "1.8 g",         # 지방
+        "allergy": "없음",
+        "info": "다이어트 추천",
+    },
+    "흰쌀밥": {
+        "calorie": "300 kcal",
+        "carbs": "65 g",
+        "protein": "6 g",
+        "fat": "0.5 g",
+        "allergy": "없음",
+        "info": "흰쌀밥",
+    },
+    "제육덮밥": {
+        "calorie": "716 kcal",  # 1인분(400g) 기준
+        "carbs": "79.9 g",      # 탄수화물
+        "protein": "30.9 g",    # 단백질
+        "fat": "30.3 g",        # 지방
+        "allergy": "돼지고기",
+        "info": "나트륨 함량 높음",
+    },
+    "소불고기": {
+        "calorie": "489 kcal",  # 1인분(300g) 기준
+        "carbs": "15 g",        # 탄수화물
+        "protein": "56.5 g",    # 단백질
+        "fat": "20.5 g",        # 지방
+        "allergy": "쇠고기",
+        "info": "단백질 풍부",
+    },
+    "닭곰탕": {
+        "calorie": "177 kcal",  # 1인분(350g) 기준, 밥 제외
+        "carbs": "7 g",
+        "protein": "26.3 g",    # 단백질
+        "fat": "5 g",
+        "allergy": "닭고기",
+        "info": "단백질 풍부, 국물 나트륨 주의",
+    },
+    "잔치국수": {
+        "calorie": "599 kcal",  # 1회 제공량(700g) 기준
+        "carbs": "118.5 g",
+        "protein": "21.1 g",    # (잔치국수 1인분 265 kcal, 탄수화물 48.3g)
+        "fat": "4.5 g",
+        "allergy": "밀",
+        "info": "나트륨 함량 높음 (국물 제외 시 낮아짐)",
+    },
+    # --- 반찬류 ---
+    "단무지": {
+        "calorie": "3 kcal",    # 1반찬그릇(30g) 기준
+        "carbs": "0.8 g",
+        "protein": "0.1 g",
+        "fat": "0 g",
+        "allergy": "없음",
+        "info": "나트륨 주의",
+    },
+    "배추김치": {
+        "calorie": "10 kcal",
+        "carbs": "2 g",
+        "protein": "1 g",
+        "fat": "0 g",
+        "allergy": "새우젓(갑각류)",
+        "info": "저칼로리 반찬",
+    },
+    "두부된장국": {
+        "calorie": "50 kcal",
+        "carbs": "5 g",
+        "protein": "4 g",
+        "fat": "2 g",
+        "allergy": "대두",
+        "info": "두부(대두) 알레르기 주의",
+    },
+    # --- 기타 메뉴 (필요 시 계속 추가) ---
+    # ...
+}
+
+# ==============================================================================
+# 2. 크롤링 및 OCR 연동 함수
+# ==============================================================================
+
+def get_latest_menu_detail_url():
+    """ 공지사항 목록에서 가장 최근의 '한림대 학생식당 메뉴게시' 링크를 찾습니다. """
+    NOTICE_LIST_URL = "https://dorm.ourhome.co.kr/notice.aspx"
+    BASE_URL = "https://dorm.ourhome.co.kr/" 
 
     try:
-        # 1. 웹페이지 HTML 코드 가져오기
-        response = requests.get(url)
-        response.raise_for_status() # HTTP 오류가 발생하면 예외 발생
-
-        # 2. BeautifulSoup으로 HTML 파싱
+        response = requests.get(NOTICE_LIST_URL)
+        response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
+
+        # [최종 수정]: "board_list" 클래스를 가진 DIV 태그를 찾습니다.
+        board_area = soup.find('div', class_='board_list') 
         
-        # 3. 메뉴 정보가 담긴 특정 영역 찾기 (예시: class='menu-list' 태그)
-        # 이 부분의 'menu-list'는 학교 웹사이트의 실제 class명으로 대체해야 합니다.
-        menu_container = soup.find('div', class_='menu-list') 
+        if not board_area: 
+            # 만약 div board_list를 못 찾을 경우, 아래 메시지가 출력됩니다.
+            print("경고: 상위 목록 컨테이너(div class='board_list')를 찾지 못했습니다.")
+            return None
+
+        # 테이블 안의 모든 링크('a' 태그)를 찾습니다.
+        links = board_area.find_all('a') 
         
-        menu_list = []
-        if menu_container:
-            # 4. 메뉴 이름 텍스트만 추출 (예시: <li> 태그 사용)
-            for item in menu_container.find_all('li'): 
-                menu_name = item.get_text(strip=True)
-                menu_list.append({"name": menu_name, "price": 0}) 
-        
-        if not menu_list:
-            print("경고: 크롤링 실패 또는 메뉴 없음. 임시 데이터 사용.")
-            
-        # 임시 데이터 (크롤링이 실패하거나 없는 경우 사용)
-        return {
-            "restaurant": "학생 식당 (본관)",
-            "menu": [
-                {"name": "닭개장", "price": 4500},
-                {"name": "제육볶음", "price": 5500},
-                {"name": "흰밥", "price": 500},
-                {"name": "김치", "price": 0},
-            ]
-        }
+        for link in links:
+            title = link.get_text(strip=True)
+            href = link.get('href')
+
+            if "한림대 학생식당 메뉴게시" in title and "seq=" in href:
+                if href.startswith('http'):
+                    return href
+                else:
+                    return f"{BASE_URL}{href}"
+
+        print("경고: '한림대 학생식당 메뉴게시' 링크를 찾지 못했습니다.")
+        return None
 
     except requests.exceptions.RequestException as e:
-        print(f"웹사이트 접속 오류 발생: {e}. 임시 데이터 사용.")
-        return {
-            "restaurant": "학생 식당 (본관)",
-            "menu": [
-                {"name": "닭개장", "price": 4500},
-                {"name": "제육볶음", "price": 5500},
-                {"name": "흰밥", "price": 500},
-                {"name": "김치", "price": 0},
-            ]
-        }
+        print(f"목록 페이지 접속 오류 발생: {e}")
+        return None
+
+    except requests.exceptions.RequestException as e:
+        print(f"목록 페이지 접속 오류 발생: {e}")
+        return None
+
+
+def get_menu_image_url(detail_page_url):
+    """ 2차 크롤링: 상세 페이지에서 메뉴 이미지의 URL을 추출합니다. """
+    try:
+        response = requests.get(detail_page_url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # [주의]: 이미지 태그의 src 속성을 정확히 찾아야 합니다.
+        # 공지사항 본문 내용이 들어있는 영역을 찾은 후 그 안의 <img> 태그를 찾습니다.
+        # 이 부분의 클래스명은 실제 웹사이트 구조에 따라 달라질 수 있습니다.
+        image_tag = soup.find('td', {'class': 'bbs_txt'}).find('img')
+        
+        if image_tag and image_tag.get('src'):
+            return image_tag.get('src')
+        return None
+
+    except Exception as e:
+        print(f"이미지 URL 추출 오류 발생: {e}")
+        return None
+
+
+def download_menu_image(image_url, save_path="temp_menu.jpg"):
+    """ 메뉴 이미지를 다운로드하여 로컬에 저장합니다. """
+    try:
+        response = requests.get(image_url, stream=True)
+        response.raise_for_status()
+            
+        with open(save_path, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
+        return save_path
+            
+    except requests.exceptions.RequestException as e:
+        print(f"이미지 다운로드 오류 발생: {e}")
+        return None
+
+
+def detect_text_from_image(image_path):
+    """ Google Cloud Vision API를 사용하여 이미지에서 텍스트를 추출하고, 임시 파일을 삭제합니다. """
+    
+    try:
+        client = vision.ImageAnnotatorClient()
+        with io.open(image_path, 'rb') as image_file:
+            content = image_file.read()
+
+        image = vision.Image(content=content)
+        response = client.text_detection(image=image)
+        
+        if response.text_annotations:
+            # 이미지 전체의 텍스트 반환
+            return response.text_annotations[0].description
+        return ""
+    
+    except GoogleAPICallError as e:
+        print(f"Vision API 호출 오류 발생 (인증 문제): {e}")
+        return None
+        
+    finally:
+        # 사용 후 임시 파일 삭제
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+
+def clean_ocr_text_to_menu_list(full_text):
+    """ OCR 추출 텍스트를 파싱하여 메뉴 이름 리스트를 만듭니다. """
+    menu_names = []
+    lines = full_text.split('\n')
+    
+    for line in lines:
+        if "요일:" in line:
+            parts = line.split(':')
+            if len(parts) > 1:
+                # '닭곰탕, 잡채, 깍두기'와 같은 부분만 가져옵니다.
+                menu_items_raw = parts[1].strip()
+                # 쉼표, 슬래시 등을 기준으로 메뉴를 분리하고 불필요한 공백을 제거합니다.
+                items = [item.strip() for item in menu_items_raw.replace('/', ',').split(',') if item.strip()]
+                
+                for item in items:
+                    # 너무 짧거나 불필요한 텍스트 필터링 (ex: 띄어쓰기, 괄호 제거)
+                    clean_item = item.replace('(', '').replace(')', '').replace('.', '').strip()
+                    if len(clean_item) > 1 and not any(keyword in clean_item for keyword in ["식단", "아침", "점심", "저녁"]):
+                        menu_names.append(clean_item)
+                        
+    return menu_names
 
 
 # ==============================================================================
-# 2. 식약처 영양 성분 매칭 및 데이터 관리 
-# ==============================================================================
-def match_nutrition_info(menu_item):
-    """
-    메뉴 항목에 대한 영양 성분 정보를 매칭하는 함수입니다.
-    이곳에 식약처 API 호출 코드가 들어갑니다.
-    """
-    menu_name = menu_item["name"]
-    # print(f"'{menu_name}'에 대한 영양 성분 정보 매칭 중...")
-    
-    # [TODO 2]: 여기에 식약처 영양성분 API를 호출하고 응답을 처리하는 로직을 작성하세요.
-    # YOUR_API_KEY는 발급받은 실제 키로 대체해야 합니다.
-    api_key = "YOUR_API_KEY" 
-    
-    # 임시 영양 정보 (실제 식약처 API 응답으로 대체 필요)
-    nutrition_info = {
-        "calories": 0, 
-        "protein": 0,
-        "carbs": 0,
-        "fat": 0,
-        "allergy_info": "정보 없음"
-    }
-
-    # API 호출 로직이 들어가기 전까지는 임시로 메뉴명에 따라 영양 정보를 매칭
-    if "닭개장" in menu_name:
-        nutrition_info.update({"calories": 350, "protein": 25, "carbs": 30, "fat": 15, "allergy_info": "닭고기"})
-    elif "제육볶음" in menu_name:
-        nutrition_info.update({"calories": 520, "protein": 35, "carbs": 40, "fat": 20, "allergy_info": "돼지고기"})
-    
-    return nutrition_info
-
-# ==============================================================================
-# 3. 최종 데이터를 프론트엔드에 전달할 API 응답 구성
+# 3. 최종 API 응답 구성
 # ==============================================================================
 def generate_final_response():
-    """
-    프론트엔드 팀에게 전달할 최종 학식 메뉴 응답을 구성합니다.
-    """
-    raw_menu = get_today_menu()
+    """ 최종 학식 메뉴 응답 구성 (OCR 텍스트 기반 및 수동 DB 매칭) """
+    
+    # 1. 1차 크롤링: 최신 상세 페이지 URL 가져오기
+    detail_page_url = get_latest_menu_detail_url()
+    if not detail_page_url:
+        return json.dumps({"error": "메뉴 상세 페이지 링크를 찾을 수 없음"}, indent=4, ensure_ascii=False)
+    
+    # 2. 2차 크롤링: 이미지 URL 가져오기
+    IMAGE_URL = "https://dorm.ourhome.co.kr/image/notice/2fca66b5-288b-4f8a-873a-4b8045076143.jpg"
+
+    # 3. 이미지 다운로드 및 OCR 분석
+    temp_file_path = download_menu_image(IMAGE_URL)
+    if not temp_file_path:
+        return json.dumps({"error": "이미지 다운로드 실패"}, indent=4, ensure_ascii=False)
+
+    full_ocr_text = detect_text_from_image(temp_file_path)
+    if not full_ocr_text:
+        return json.dumps({"error": "OCR 텍스트 추출 실패"}, indent=4, ensure_ascii=False)
+    
+    # 4. 메뉴 이름 클리닝
+    menu_names_from_ocr = clean_ocr_text_to_menu_list(full_ocr_text)
+    
     final_menu = []
     
-    for item in raw_menu["menu"]:
-        # 영양 정보 매칭 함수 호출
-        nutrition = match_nutrition_info(item)
+    for name in menu_names_from_ocr:
+        # 5. 수동 DB 매칭
+        # 공백 제거 후 DB 검색 (ex: "제육덮밥" == "제육 덮밥" 방지)
+        cleaned_name_key = name.replace(" ", "")
         
-        # 최종 항목 구성
+        nutrition = NUTRITION_MANUAL_DB.get(cleaned_name_key, {
+            "calories": 0, "protein": 0, "carbs": 0, "fat": 0, "allergy_info": "매칭 데이터 없음"
+        })
+        
         final_item = {
-            "name": item["name"],
-            "price": item["price"],
+            "name": name,
+            "price": 0, # 가격 정보 필요
             "nutrition": nutrition
         }
         final_menu.append(final_item)
         
-    # 최종 JSON 응답 생성 (API 서버의 응답 형태를 모방)
     final_response = {
         "date": datetime.now().strftime("%Y-%m-%d"),
-        "restaurant": raw_menu["restaurant"],
+        "restaurant": "한림대 학생 식당",
         "menu_list": final_menu
     }
     
-    # JSON 문자열로 변환하여 반환
     return json.dumps(final_response, indent=4, ensure_ascii=False)
 
 # ==============================================================================
-# 테스트 실행 (이 부분은 파일 자체를 테스트할 때 사용합니다.)
+# 테스트 실행
 # ==============================================================================
 if __name__ == "__main__":
     print("\n--- 백엔드 학식 API 로직 테스트 시작 ---")
     api_response = generate_final_response()
     print("\n--- 프론트엔드에 전달될 최종 API 응답 (JSON 형식) ---")
     print(api_response)
+
+# nutrition_api.py 파일 가장 아래쪽에 추가
+
+if __name__ == "__main__":
+    print("\n--- 1차 크롤링 테스트 시작 ---")
+    
+    # get_latest_menu_detail_url 함수를 호출하고 결과를 변수에 저장
+    test_url = get_latest_menu_detail_url()
+    
+    if test_url:
+        print(f"✅ 성공: 최신 메뉴 상세 URL을 찾았습니다.")
+        print(f"   추출된 URL: {test_url}")
+        
+        # 추가 확인: 찾은 URL이 실제 공지사항 링크 형태인지 확인
+        if "noticeView.aspx" in test_url and "seq=" in test_url:
+            print("   (URL 형식 검사 통과)")
+        else:
+            print("   ❌ 오류: URL 형식이 예상과 다릅니다. 크롤링 로직을 다시 확인하세요.")
+            
+    else:
+        print("❌ 실패: 최신 메뉴 상세 URL을 찾지 못했습니다. 크롤링 코드를 확인하세요.")
