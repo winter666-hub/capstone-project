@@ -194,10 +194,132 @@ NUTRITION_MANUAL_DB = {
         "allergy_info": "새우젓(갑각류)",
         "info": "저칼로리 반찬",
     },
+    "꽁치김치조림": {  # 11/3 ~ 11/7
+        "calorie": "380 kcal",
+        "carbs": "30 g",
+        "protein": "35 g",
+        "fat": "15 g",
+        "allergy_info": "꽁치(어류), 대두",
+        "info": "단백질 풍부, 나트륨 주의",
+    },
+    "맑은순두부찌개": {
+        "calorie": "100 kcal",
+        "carbs": "7 g",
+        "protein": "10 g",
+        "fat": "4 g",
+        "allergy_info": "대두(두부)",
+        "info": "저칼로리 국물",
+    },
+    "브로콜리숙회": {
+        "calorie": "50 kcal",
+        "carbs": "8 g",
+        "protein": "4 g",
+        "fat": "0 g",
+        "allergy_info": "없음",
+        "info": "비타민 C 풍부",
+    },
+    "소고기야채죽": {
+        "calorie": "280 kcal",
+        "carbs": "45 g",
+        "protein": "15 g",
+        "fat": "5 g",
+        "allergy_info": "쇠고기",
+        "info": "부담 없는 아침 식사",
+    },
+    "예리알곤약조림": {
+        "calorie": "120 kcal",
+        "carbs": "25 g",
+        "protein": "5 g",
+        "fat": "0 g",
+        "allergy_info": "없음",
+        "info": "저칼로리 반찬",
+    },
+    "애호박계란찜": {
+        "calorie": "90 kcal",
+        "carbs": "5 g",
+        "protein": "6 g",
+        "fat": "5 g",
+        "allergy_info": "계란",
+        "info": "부드러운 단백질 공급",
+    },
+    "잡볶음밥": {
+        "calorie": "450 kcal",
+        "carbs": "70 g",
+        "protein": "15 g",
+        "fat": "12 g",
+        "allergy_info": "대두",
+        "info": "혼합 채소 포함",
+    },
+    "해물볶음밥": {
+        "calorie": "490 kcal",
+        "carbs": "75 g",
+        "protein": "18 g",
+        "fat": "12 g",
+        "allergy_info": "새우, 오징어",
+        "info": "해산물 알레르기 주의",
+    },
+    "잡채밥": {
+        "calorie": "650 kcal",
+        "carbs": "95 g",
+        "protein": "20 g",
+        "fat": "20 g",
+        "allergy_info": "밀, 돼지고기",
+        "info": "탄수화물 함량 높음",
+    },
+    "사골순대국": {
+        "calorie": "550 kcal",
+        "carbs": "60 g",
+        "protein": "30 g",
+        "fat": "20 g",
+        "allergy_info": "돼지고기, 대두(순대)",
+        "info": "고지방 국물 주의",
+    },
+    "참치김치찌개": {
+        "calorie": "280 kcal",
+        "carbs": "20 g",
+        "protein": "25 g",
+        "fat": "12 g",
+        "allergy_info": "생선(참치), 대두",
+        "info": "단백질 풍부, 나트륨 주의",
+    },
+    "돈육김치찌개": {
+        "calorie": "320 kcal",
+        "carbs": "25 g",
+        "protein": "30 g",
+        "fat": "15 g",
+        "allergy_info": "돼지고기, 대두",
+        "info": "단백질/지방 함량 높음",
+    },
+    "제육김치볶음밥": {
+        "calorie": "680 kcal",
+        "carbs": "85 g",
+        "protein": "30 g",
+        "fat": "25 g",
+        "allergy_info": "돼지고기",
+        "info": "나트륨/지방 함량 높음",
+    },
+    
+    "콥샐러드": {
+        "calorie": "350 kcal",
+        "carbs": "15 g",
+        "protein": "25 g",
+        "fat": "20 g",
+        "allergy_info": "계란, 유제품, 견과류(드레싱)",
+        "info": "채소/단백질 균형식",
+    },
+    "눈꽃치즈닭갈비덮밥": {
+        "calorie": "780 kcal",
+        "carbs": "90 g",
+        "protein": "45 g",
+        "fat": "30 g",
+        "allergy_info": "닭고기, 유제품(치즈)",
+        "info": "고칼로리 메인 메뉴",
+    },
+}
     
     # --- 기타 메뉴 (필요 시 계속 추가) ---
     # ...
-}
+
 
 # ==============================================================================
 # 2. 크롤링 및 OCR 연동 함수
