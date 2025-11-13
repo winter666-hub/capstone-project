@@ -1,537 +1,444 @@
 # backend/nutrition/nutrition_api.py
 
-import requests
-from bs4 import BeautifulSoup
-from google.cloud import vision
-import io
 import json
 from datetime import datetime
 import os
-from google.api_core.exceptions import GoogleAPICallError
 
 # ==============================================================================
-# 1. 수동 관리 데이터베이스 (직접 입력 부분)
-# [TODO]: 여기에 학교 메뉴와 해당 영양 정보를 직접 입력하고 관리해야 합니다.
+# 1. 수동 관리 데이터베이스 
 # ==============================================================================
-NUTRITION_MANUAL_DB = {
-    # --- 주요 밥류/메인 메뉴 ---
+
+# --- 1-1. 밥/메인 메뉴 (Rice/Main Dishes)
+RICE_MAIN_DB = {
+    # 기존 메뉴
     "잡곡밥": {
-        "calorie": "306 kcal",  # 1인분(210g) 기준
-        "carbs": "61.6 g",      # 탄수화물
-        "protein": "11.1 g",    # 단백질
-        "fat": "1.8 g",         # 지방
-        "allergy": "없음",
-        "info": "다이어트 추천",
+        "calorie": "306 kcal", "carbs": "61.6 g", "protein": "11.1 g", "fat": "1.8 g",
+        "allergy": "없음", "info": "다이어트 추천",
     },
     "흰쌀밥": {
-        "calorie": "300 kcal",
-        "carbs": "65 g",
-        "protein": "6 g",
-        "fat": "0.5 g",
-        "allergy": "없음",
-        "info": "흰쌀밥",
+        "calorie": "300 kcal", "carbs": "65 g", "protein": "6 g", "fat": "0.5 g",
+        "allergy": "없음", "info": "흰쌀밥",
     },
     "제육덮밥": {
-        "calorie": "716 kcal",  # 1인분(400g) 기준
-        "carbs": "79.9 g",      # 탄수화물
-        "protein": "30.9 g",    # 단백질
-        "fat": "30.3 g",        # 지방
-        "allergy": "돼지고기",
-        "info": "나트륨 함량 높음",
+        "calorie": "716 kcal", "carbs": "79.9 g", "protein": "30.9 g", "fat": "30.3 g",
+        "allergy": "돼지고기", "info": "나트륨 함량 높음",
     },
     "소불고기": {
-        "calorie": "489 kcal",  # 1인분(300g) 기준
-        "carbs": "15 g",        # 탄수화물
-        "protein": "56.5 g",    # 단백질
-        "fat": "20.5 g",        # 지방
-        "allergy": "쇠고기",
-        "info": "단백질 풍부",
-    },
-    "닭곰탕": {
-        "calorie": "177 kcal",  # 1인분(350g) 기준, 밥 제외
-        "carbs": "7 g",
-        "protein": "26.3 g",    # 단백질
-        "fat": "5 g",
-        "allergy": "닭고기",
-        "info": "단백질 풍부, 국물 나트륨 주의",
+        "calorie": "489 kcal", "carbs": "15 g", "protein": "56.5 g", "fat": "20.5 g",
+        "allergy": "쇠고기", "info": "단백질 풍부",
     },
     "잔치국수": {
-        "calorie": "599 kcal",  # 1회 제공량(700g) 기준
-        "carbs": "118.5 g",
-        "protein": "21.1 g",    # (잔치국수 1인분 265 kcal, 탄수화물 48.3g)
-        "fat": "4.5 g",
-        "allergy": "밀",
-        "info": "나트륨 함량 높음 (국물 제외 시 낮아짐)",
-    },
-    # --- 반찬류 ---
-    "단무지": {
-        "calorie": "3 kcal",    # 1반찬그릇(30g) 기준
-        "carbs": "0.8 g",
-        "protein": "0.1 g",
-        "fat": "0 g",
-        "allergy": "없음",
-        "info": "나트륨 주의",
-    },
-    "배추김치": {
-        "calorie": "10 kcal",
-        "carbs": "2 g",
-        "protein": "1 g",
-        "fat": "0 g",
-        "allergy": "새우젓(갑각류)",
-        "info": "저칼로리 반찬",
-    },
-    "두부된장국": {
-        "calorie": "50 kcal",
-        "carbs": "5 g",
-        "protein": "4 g",
-        "fat": "2 g",
-        "allergy": "대두",
-        "info": "두부(대두) 알레르기 주의",
+        "calorie": "265 kcal", "carbs": "48.3 g", "protein": "11.6 g", "fat": "2.9 g",
+        "allergy_info": "밀(면)", "info": "나트륨 주의",
     },
     "야채매콤비빔밥": {
-        "calorie": "550 kcal",
-        "carbs": "90 g",
-        "protein": "15 g",
-        "fat": "15 g",
-        "allergy_info": "고추장, 참기름(대두)",
-        "info": "나트륨 주의 (비빔밥 소스)",
+        "calorie": "550 kcal", "carbs": "90 g", "protein": "15 g", "fat": "15 g",
+        "allergy_info": "고추장, 참기름(대두)", "info": "나트륨 주의 (비빔밥 소스)",
     },
     "간장불고기": {
-        "calorie": "489 kcal", 
-        "carbs": "15 g",
-        "protein": "56.5 g",
-        "fat": "20.5 g",
-        "allergy_info": "쇠고기, 대두(간장)",
-        "info": "고단백",
+        "calorie": "489 kcal", "carbs": "15 g", "protein": "56.5 g", "fat": "20.5 g",
+        "allergy_info": "쇠고기, 대두(간장)", "info": "고단백",
     },
     "돈사태찜": {
-        "calorie": "450 kcal",
-        "carbs": "25 g",
-        "protein": "40 g",
-        "fat": "25 g",
-        "allergy_info": "돼지고기, 대두",
-        "info": "단백질/지방 함량 높음",
+        "calorie": "450 kcal", "carbs": "25 g", "protein": "40 g", "fat": "25 g",
+        "allergy_info": "돼지고기, 대두", "info": "단백질/지방 함량 높음",
     },
     "오븐불고기": {
-        "calorie": "380 kcal", 
-        "carbs": "15 g",
-        "protein": "40 g",
-        "fat": "18 g",
-        "allergy_info": "쇠고기",
-        "info": "저지방 불고기",
-    },
-    "쇠고기무국": {
-        "calorie": "123 kcal", 
-        "carbs": "7.8 g",
-        "protein": "14.2 g",
-        "fat": "4 g",
-        "allergy_info": "쇠고기",
-        "info": "저칼로리 국",
+        "calorie": "380 kcal", "carbs": "15 g", "protein": "40 g", "fat": "18 g",
+        "allergy_info": "쇠고기", "info": "저지방 불고기",
     },
     "떡볶이": {
-        "calorie": "400 kcal",
-        "carbs": "75 g",
-        "protein": "10 g",
-        "fat": "5 g",
-        "allergy_info": "밀(떡), 고추장",
-        "info": "탄수화물 높음 (분식)",
+        "calorie": "400 kcal", "carbs": "75 g", "protein": "10 g", "fat": "5 g",
+        "allergy_info": "밀(떡), 고추장", "info": "탄수화물 높음 (분식)",
     },
     "마파두부덮밥": {
-        "calorie": "600 kcal",
-        "carbs": "80 g",
-        "protein": "25 g",
-        "fat": "18 g",
-        "allergy_info": "대두(두부), 밀",
-        "info": "두부로 단백질 보충",
+        "calorie": "600 kcal", "carbs": "80 g", "protein": "25 g", "fat": "18 g",
+        "allergy_info": "대두(두부), 밀", "info": "두부로 단백질 보충",
     },
-
-    # --- 반찬 및 사이드 메뉴 ---
-    "단호박튀김": {
-        "calorie": "150 kcal",
-        "carbs": "20 g",
-        "protein": "2 g",
-        "fat": "7 g",
-        "allergy_info": "밀",
-        "info": "튀김류",
-    },
-    "오징어젓갈채": {
-        "calorie": "100 kcal",
-        "carbs": "15 g",
-        "protein": "5 g",
-        "fat": "3 g",
-        "allergy_info": "오징어, 갑각류",
-        "info": "나트륨 높음",
-    },
-    "순두부찌개": {
-        "calorie": "150 kcal",
-        "carbs": "10 g",
-        "protein": "10 g",
-        "fat": "7 g",
-        "allergy_info": "대두(두부)",
-        "info": "저칼로리 찌개",
-    },
-    "참나물무침": {
-        "calorie": "25 kcal",
-        "carbs": "5 g",
-        "protein": "1 g",
-        "fat": "0 g",
-        "allergy_info": "없음",
-        "info": "신선 채소",
-    },
-    "배추김치": {
-        "calorie": "10 kcal",
-        "carbs": "2 g",
-        "protein": "1 g",
-        "fat": "0 g",
-        "allergy_info": "새우젓(갑각류)",
-        "info": "저칼로리 반찬",
-    },
-    "깍두기": {
-        "calorie": "15 kcal",
-        "carbs": "3 g",
-        "protein": "1 g",
-        "fat": "0 g",
-        "allergy_info": "새우젓(갑각류)",
-        "info": "저칼로리 반찬",
-    },
-    "꽁치김치조림": {  # 11/3 ~ 11/7
-        "calorie": "380 kcal",
-        "carbs": "30 g",
-        "protein": "35 g",
-        "fat": "15 g",
-        "allergy_info": "꽁치(어류), 대두",
-        "info": "단백질 풍부, 나트륨 주의",
-    },
-    "맑은순두부찌개": {
-        "calorie": "100 kcal",
-        "carbs": "7 g",
-        "protein": "10 g",
-        "fat": "4 g",
-        "allergy_info": "대두(두부)",
-        "info": "저칼로리 국물",
-    },
-    "브로콜리숙회": {
-        "calorie": "50 kcal",
-        "carbs": "8 g",
-        "protein": "4 g",
-        "fat": "0 g",
-        "allergy_info": "없음",
-        "info": "비타민 C 풍부",
+    "꽁치김치조림": {
+        "calorie": "380 kcal", "carbs": "30 g", "protein": "35 g", "fat": "15 g",
+        "allergy_info": "꽁치(어류), 대두", "info": "단백질 풍부, 나트륨 주의",
     },
     "소고기야채죽": {
-        "calorie": "280 kcal",
-        "carbs": "45 g",
-        "protein": "15 g",
-        "fat": "5 g",
-        "allergy_info": "쇠고기",
-        "info": "부담 없는 아침 식사",
-    },
-    "예리알곤약조림": {
-        "calorie": "120 kcal",
-        "carbs": "25 g",
-        "protein": "5 g",
-        "fat": "0 g",
-        "allergy_info": "없음",
-        "info": "저칼로리 반찬",
-    },
-    "애호박계란찜": {
-        "calorie": "90 kcal",
-        "carbs": "5 g",
-        "protein": "6 g",
-        "fat": "5 g",
-        "allergy_info": "계란",
-        "info": "부드러운 단백질 공급",
+        "calorie": "280 kcal", "carbs": "45 g", "protein": "15 g", "fat": "5 g",
+        "allergy_info": "쇠고기", "info": "부담 없는 아침 식사",
     },
     "잡볶음밥": {
-        "calorie": "450 kcal",
-        "carbs": "70 g",
-        "protein": "15 g",
-        "fat": "12 g",
-        "allergy_info": "대두",
-        "info": "혼합 채소 포함",
+        "calorie": "450 kcal", "carbs": "70 g", "protein": "15 g", "fat": "12 g",
+        "allergy_info": "대두", "info": "혼합 채소 포함",
     },
     "해물볶음밥": {
-        "calorie": "490 kcal",
-        "carbs": "75 g",
-        "protein": "18 g",
-        "fat": "12 g",
-        "allergy_info": "새우, 오징어",
-        "info": "해산물 알레르기 주의",
+        "calorie": "490 kcal", "carbs": "75 g", "protein": "18 g", "fat": "12 g",
+        "allergy_info": "새우, 오징어", "info": "해산물 알레르기 주의",
     },
     "잡채밥": {
-        "calorie": "650 kcal",
-        "carbs": "95 g",
-        "protein": "20 g",
-        "fat": "20 g",
-        "allergy_info": "밀, 돼지고기",
-        "info": "탄수화물 함량 높음",
-    },
-    "사골순대국": {
-        "calorie": "550 kcal",
-        "carbs": "60 g",
-        "protein": "30 g",
-        "fat": "20 g",
-        "allergy_info": "돼지고기, 대두(순대)",
-        "info": "고지방 국물 주의",
-    },
-    "참치김치찌개": {
-        "calorie": "280 kcal",
-        "carbs": "20 g",
-        "protein": "25 g",
-        "fat": "12 g",
-        "allergy_info": "생선(참치), 대두",
-        "info": "단백질 풍부, 나트륨 주의",
-    },
-    "돈육김치찌개": {
-        "calorie": "320 kcal",
-        "carbs": "25 g",
-        "protein": "30 g",
-        "fat": "15 g",
-        "allergy_info": "돼지고기, 대두",
-        "info": "단백질/지방 함량 높음",
+        "calorie": "650 kcal", "carbs": "95 g", "protein": "20 g", "fat": "20 g",
+        "allergy_info": "밀, 돼지고기", "info": "탄수화물 함량 높음",
     },
     "제육김치볶음밥": {
-        "calorie": "680 kcal",
-        "carbs": "85 g",
-        "protein": "30 g",
-        "fat": "25 g",
-        "allergy_info": "돼지고기",
-        "info": "나트륨/지방 함량 높음",
-    },
-    
-    "콥샐러드": {
-        "calorie": "350 kcal",
-        "carbs": "15 g",
-        "protein": "25 g",
-        "fat": "20 g",
-        "allergy_info": "계란, 유제품, 견과류(드레싱)",
-        "info": "채소/단백질 균형식",
+        "calorie": "680 kcal", "carbs": "85 g", "protein": "30 g", "fat": "25 g",
+        "allergy_info": "돼지고기", "info": "나트륨/지방 함량 높음",
     },
     "눈꽃치즈닭갈비덮밥": {
-        "calorie": "780 kcal",
-        "carbs": "90 g",
-        "protein": "45 g",
-        "fat": "30 g",
-        "allergy_info": "닭고기, 유제품(치즈)",
-        "info": "고칼로리 메인 메뉴",
+        "calorie": "780 kcal", "carbs": "90 g", "protein": "45 g", "fat": "30 g",
+        "allergy_info": "닭고기, 유제품(치즈)", "info": "고칼로리 메인 메뉴",
+    },
+    "야채비빔냉국수": {
+        "calorie": "420 kcal", "carbs": "80 g", "protein": "15 g", "fat": "5 g",
+        "allergy_info": "밀(면), 고추장", "info": "나트륨/탄수화물 높음 (시원한 별미)",
+    },
+    "돈파육덮밥": {
+        "calorie": "650 kcal", "carbs": "85 g", "protein": "35 g", "fat": "20 g",
+        "allergy_info": "돼지고기, 대두(소스)", "info": "고칼로리, 중식 덮밥",
+    },
+    "홍합진짬뽕": {
+        "calorie": "480 kcal", "carbs": "60 g", "protein": "30 g", "fat": "15 g",
+        "allergy_info": "밀(면), 홍합(조개류)", "info": "해산물/나트륨 주의",
+    },
+    "찹쌀밥": {
+        "calorie": "240 kcal", "carbs": "50 g", "protein": "5 g", "fat": "2 g",
+        "allergy_info": "없음", "info": "주식 (일반 밥과 유사)",
+    },
+    "새우볶음밥": {
+        "calorie": "490 kcal", "carbs": "75 g", "protein": "18 g", "fat": "12 g",
+        "allergy_info": "새우, 계란", "info": "새우 알레르기 주의",
+    },
+    "버섯불고기": {
+        "calorie": "380 kcal", "carbs": "15 g", "protein": "40 g", "fat": "18 g",
+        "allergy_info": "쇠고기, 대두", "info": "버섯 포함 고단백",
+    },
+    "수육백반": {
+        "calorie": "700 kcal", "carbs": "60 g", "protein": "50 g", "fat": "30 g",
+        "allergy_info": "돼지고기", "info": "고단백, 지방 적당",
+    },
+    "우동": {
+        "calorie": "350 kcal", "carbs": "65 g", "protein": "15 g", "fat": "4 g",
+        "allergy_info": "밀(면)", "info": "나트륨/탄수화물 주의",
+    },
+    "차돌박이": {
+        "calorie": "600 kcal", "carbs": "5 g", "protein": "25 g", "fat": "55 g",
+        "allergy_info": "쇠고기", "info": "매우 고지방 (구이 기준)",
+    },
+    # 추가 메뉴 (이미지 & 야채비빔고기튀김)
+    "야채비빔고기튀김": {
+        "calorie": "680 kcal", "carbs": "70 g", "protein": "35 g", "fat": "30 g",
+        "allergy_info": "밀(튀김옷), 돼지고기/쇠고기(고기)", "info": "고칼로리, 고지방 (가정치)",
+    },
+    "돼사태찜": {
+        "calorie": "450 kcal", "carbs": "25 g", "protein": "40 g", "fat": "25 g",
+        "allergy_info": "돼지고기, 대두", "info": "돈사태찜과 동일한 정보",
+    },
+    "해물볶음짬뽕밥": {
+        "calorie": "650 kcal", "carbs": "80 g", "protein": "30 g", "fat": "25 g",
+        "allergy_info": "밀, 해산물(오징어, 새우)", "info": "중식, 고칼로리",
+    },
+    "해물볶음우동": {
+        "calorie": "550 kcal", "carbs": "70 g", "protein": "25 g", "fat": "20 g",
+        "allergy_info": "밀(면), 해산물", "info": "중식, 나트륨 주의",
+    },
+    "팽이장국": {
+        "calorie": "50 kcal", "carbs": "8 g", "protein": "2 g", "fat": "1 g",
+        "allergy_info": "대두", "info": "저칼로리 국",
+    },
+    "치킨마요덮밥": {
+        "calorie": "720 kcal", "carbs": "85 g", "protein": "35 g", "fat": "30 g",
+        "allergy_info": "닭고기, 밀, 계란", "info": "마요네즈로 인한 고지방",
+    },
+    "퐁리조또": {
+        "calorie": "480 kcal", "carbs": "55 g", "protein": "20 g", "fat": "20 g",
+        "allergy_info": "유제품(치즈)", "info": "양식, 퓨전 덮밥",
+    },
+    "치즈돈카츠샌드위치": {
+        "calorie": "450 kcal", "carbs": "40 g", "protein": "25 g", "fat": "20 g",
+        "allergy_info": "밀, 계란, 유제품, 돼지고기", "info": "고지방 샌드위치",
     },
 }
-    
-    # --- 기타 메뉴 (필요 시 계속 추가) ---
-    # ...
 
+# --- 1-2. 국/찌개류 (Soup/Stew)
+SOUP_STEW_DB = {
+    # 기존 메뉴
+    "닭곰탕": {
+        "calorie": "177 kcal", "carbs": "7 g", "protein": "26.3 g", "fat": "5 g",
+        "allergy": "닭고기", "info": "단백질 풍부, 국물 나트륨 주의",
+    },
+    "두부된장국": {
+        "calorie": "50 kcal", "carbs": "5 g", "protein": "4 g", "fat": "2 g",
+        "allergy": "대두", "info": "두부(대두) 알레르기 주의",
+    },
+    "쇠고기무국": {
+        "calorie": "123 kcal", "carbs": "7.8 g", "protein": "14.2 g", "fat": "4 g",
+        "allergy_info": "쇠고기", "info": "저칼로리 국",
+    },
+    "순두부찌개": {
+        "calorie": "150 kcal", "carbs": "10 g", "protein": "10 g", "fat": "7 g",
+        "allergy_info": "대두(두부)", "info": "저칼로리 찌개",
+    },
+    "맑은순두부찌개": {
+        "calorie": "100 kcal", "carbs": "7 g", "protein": "10 g", "fat": "4 g",
+        "allergy_info": "대두(두부)", "info": "저칼로리 국물",
+    },
+    "사골순대국": {
+        "calorie": "550 kcal", "carbs": "60 g", "protein": "30 g", "fat": "20 g",
+        "allergy_info": "돼지고기, 대두(순대)", "info": "고지방 국물 주의",
+    },
+    "참치김치찌개": {
+        "calorie": "280 kcal", "carbs": "20 g", "protein": "25 g", "fat": "12 g",
+        "allergy_info": "생선(참치), 대두", "info": "단백질 풍부, 나트륨 주의",
+    },
+    "돈육김치찌개": {
+        "calorie": "320 kcal", "carbs": "25 g", "protein": "30 g", "fat": "15 g",
+        "allergy_info": "돼지고기, 대두", "info": "단백질/지방 함량 높음",
+    },
+    "설렁탕": {
+        "calorie": "400 kcal", "carbs": "5 g", "protein": "30 g", "fat": "28 g",
+        "allergy_info": "쇠고기", "info": "고지방 국물 주의",
+    },
+    # 추가 메뉴 (이미지)
+    "두부버섯된장국": {
+        "calorie": "80 kcal", "carbs": "8 g", "protein": "5 g", "fat": "3 g",
+        "allergy_info": "대두", "info": "된장 베이스, 저칼로리",
+    },
+    "연두부계란찜": {
+        "calorie": "90 kcal", "carbs": "5 g", "protein": "6 g", "fat": "5 g",
+        "allergy_info": "계란, 대두", "info": "애호박계란찜과 유사",
+    },
+}
 
-# ==============================================================================
-# 2. 크롤링 및 OCR 연동 함수
-# ==============================================================================
+# --- 1-3. 반찬/사이드 메뉴 (Side Dishes/Appetizers)
+SIDE_DISHES_DB = {
+    # 기존 메뉴
+    "단무지": {
+        "calorie": "3 kcal", "carbs": "0.8 g", "protein": "0.1 g", "fat": "0 g",
+        "allergy": "없음", "info": "나트륨 주의",
+    },
+    "배추김치": {
+        "calorie": "10 kcal", "carbs": "2 g", "protein": "1 g", "fat": "0 g",
+        "allergy": "새우젓(갑각류)", "info": "저칼로리 반찬",
+    },
+    "단호박튀김": {
+        "calorie": "150 kcal", "carbs": "20 g", "protein": "2 g", "fat": "7 g",
+        "allergy_info": "밀", "info": "튀김류",
+    },
+    "오징어젓갈채": {
+        "calorie": "100 kcal", "carbs": "15 g", "protein": "5 g", "fat": "3 g",
+        "allergy_info": "오징어, 갑각류", "info": "나트륨 높음",
+    },
+    "참나물무침": {
+        "calorie": "25 kcal", "carbs": "5 g", "protein": "1 g", "fat": "0 g",
+        "allergy_info": "없음", "info": "신선 채소",
+    },
+    "깍두기": {
+        "calorie": "15 kcal", "carbs": "3 g", "protein": "1 g", "fat": "0 g",
+        "allergy_info": "새우젓(갑각류)", "info": "저칼로리 반찬",
+    },
+    "브로콜리숙회": {
+        "calorie": "50 kcal", "carbs": "8 g", "protein": "4 g", "fat": "0 g",
+        "allergy_info": "없음", "info": "비타민 C 풍부",
+    },
+    "예리알곤약조림": {
+        "calorie": "120 kcal", "carbs": "25 g", "protein": "5 g", "fat": "0 g",
+        "allergy_info": "없음", "info": "저칼로리 반찬",
+    },
+    "애호박계란찜": {
+        "calorie": "90 kcal", "carbs": "5 g", "protein": "6 g", "fat": "5 g",
+        "allergy_info": "계란", "info": "부드러운 단백질 공급",
+    },
+    "콥샐러드": {
+        "calorie": "350 kcal", "carbs": "15 g", "protein": "25 g", "fat": "20 g",
+        "allergy_info": "계란, 유제품, 견과류(드레싱)", "info": "채소/단백질 균형식",
+    },
+    "숙성볶음": {
+        "calorie": "350 kcal", "carbs": "10 g", "protein": "40 g", "fat": "18 g",
+        "allergy_info": "돼지고기(추정)", "info": "고단백 반찬",
+    },
+    "고추장아찌무침": {
+        "calorie": "40 kcal", "carbs": "8 g", "protein": "1 g", "fat": "0 g",
+        "allergy_info": "대두(간장)", "info": "저칼로리, 나트륨 약간 높음",
+    },
+    "감자채근대볶음": {
+        "calorie": "80 kcal", "carbs": "10 g", "protein": "2 g", "fat": "4 g",
+        "allergy_info": "없음", "info": "식이섬유 포함",
+    },
+    "단호박식혜": {
+        "calorie": "180 kcal", "carbs": "45 g", "protein": "1 g", "fat": "0 g",
+        "allergy_info": "없음", "info": "고당류 후식",
+    },
+    "떡갈비": {
+        "calorie": "220 kcal", "carbs": "15 g", "protein": "15 g", "fat": "12 g",
+        "allergy_info": "쇠고기, 돼지고기, 대두", "info": "주요 단백질 반찬",
+    },
+    "오징어채볶음": {
+        "calorie": "100 kcal", "carbs": "15 g", "protein": "5 g", "fat": "3 g",
+        "allergy_info": "오징어", "info": "나트륨 주의",
+    },
+    "파닭파채": {
+        "calorie": "300 kcal", "carbs": "15 g", "protein": "35 g", "fat": "12 g",
+        "allergy_info": "닭고기, 밀(튀김옷)", "info": "튀김옷 포함 단백질 반찬",
+    },
+    "가자미순살튀김": {
+        "calorie": "250 kcal", "carbs": "15 g", "protein": "20 g", "fat": "12 g",
+        "allergy_info": "밀(튀김옷), 생선(가자미)", "info": "튀김류",
+    },
+    "미니돈까스": {
+        "calorie": "350 kcal", "carbs": "25 g", "protein": "20 g", "fat": "20 g",
+        "allergy_info": "돼지고기, 밀, 계란", "info": "튀김류, 고지방",
+    },
+    "잡채": {
+        "calorie": "200 kcal", "carbs": "30 g", "protein": "10 g", "fat": "5 g",
+        "allergy_info": "당면(밀/고구마전분), 대두(간장)", "info": "잔치 음식",
+    },
+    "핫도그": {
+        "calorie": "300 kcal", "carbs": "35 g", "protein": "8 g", "fat": "15 g",
+        "allergy_info": "밀, 계란, 유제품", "info": "간식류",
+    },
+    # 추가 메뉴 (이미지)
+    "고슬고슬계란볶음밥": {
+        "calorie": "400 kcal", "carbs": "60 g", "protein": "15 g", "fat": "12 g",
+        "allergy_info": "계란, 대두", "info": "간단 볶음밥",
+    },
+    "옥수수야채죽": {
+        "calorie": "250 kcal", "carbs": "40 g", "protein": "10 g", "fat": "6 g",
+        "allergy_info": "없음", "info": "소고기야채죽과 유사",
+    },
+    "다시마부각채": {
+        "calorie": "150 kcal", "carbs": "20 g", "protein": "3 g", "fat": "7 g",
+        "allergy_info": "없음", "info": "튀김류, 칼슘 풍부",
+    },
+    "가자미순살볶음": {
+        "calorie": "180 kcal", "carbs": "10 g", "protein": "20 g", "fat": "7 g",
+        "allergy_info": "생선(가자미)", "info": "저지방 단백질",
+    },
+    "고들빼기무침": {
+        "calorie": "30 kcal", "carbs": "5 g", "protein": "1 g", "fat": "0 g",
+        "allergy_info": "없음", "info": "나물, 저칼로리",
+    },
+    "단무지채무침": {
+        "calorie": "20 kcal", "carbs": "4 g", "protein": "0 g", "fat": "0 g",
+        "allergy_info": "없음", "info": "단무지보다 간이 강함",
+    },
+    "쫄깃가루탕수": {
+        "calorie": "380 kcal", "carbs": "40 g", "protein": "20 g", "fat": "15 g",
+        "allergy_info": "밀, 돼지고기", "info": "탕수육과 유사",
+    },
+    "닭봉": {
+        "calorie": "320 kcal", "carbs": "10 g", "protein": "30 g", "fat": "18 g",
+        "allergy_info": "닭고기", "info": "닭고기 부위",
+    },
+    "유부초밥": {
+        "calorie": "350 kcal", "carbs": "60 g", "protein": "10 g", "fat": "8 g",
+        "allergy_info": "대두", "info": "간편 메뉴",
+    },
+    "허브치즈닭갈비": {
+        "calorie": "480 kcal", "carbs": "20 g", "protein": "40 g", "fat": "25 g",
+        "allergy_info": "닭고기, 유제품(치즈)", "info": "고단백, 치즈 추가",
+    },
+    "미니닭갈비덮밥": {
+        "calorie": "350 kcal", "carbs": "40 g", "protein": "25 g", "fat": "10 g",
+        "allergy_info": "닭고기", "info": "닭갈비덮밥의 미니 버전",
+    },
+    "해쉬브라운": {
+        "calorie": "180 kcal", "carbs": "20 g", "protein": "2 g", "fat": "10 g",
+        "allergy_info": "없음", "info": "감자튀김류",
+    },
+    "해물모둠전": {
+        "calorie": "350 kcal", "carbs": "30 g", "protein": "15 g", "fat": "18 g",
+        "allergy_info": "밀, 계란, 해산물", "info": "모둠 해물 전",
+    },
+    "단무지무침": {
+        "calorie": "20 kcal", "carbs": "4 g", "protein": "0 g", "fat": "0 g",
+        "allergy_info": "없음", "info": "단무지보다 간이 강함",
+    },
+    "오징어채볶음": {
+        "calorie": "100 kcal", "carbs": "15 g", "protein": "5 g", "fat": "3 g",
+        "allergy_info": "오징어", "info": "나트륨 주의",
+    },
+    "모닝롤": {
+        "calorie": "120 kcal", "carbs": "20 g", "protein": "4 g", "fat": "3 g",
+        "allergy_info": "밀, 계란, 유제품", "info": "빵류",
+    },
+    "아몬드멸치볶음": {
+        "calorie": "150 kcal", "carbs": "10 g", "protein": "10 g", "fat": "8 g",
+        "allergy_info": "견과류(아몬드), 멸치", "info": "칼슘/단백질 풍부",
+    },
+    "깻잎나물무침": {
+        "calorie": "20 kcal", "carbs": "3 g", "protein": "1 g", "fat": "0 g",
+        "allergy_info": "없음", "info": "신선 채소",
+    },
+    "브로콜리숙회": {
+        "calorie": "50 kcal", "carbs": "8 g", "protein": "4 g", "fat": "0 g",
+        "allergy_info": "없음", "info": "비타민 C 풍부",
+    },
+    "돈마스터드미트볼": {
+        "calorie": "400 kcal", "carbs": "30 g", "protein": "25 g", "fat": "20 g",
+        "allergy_info": "돼지고기, 밀, 계란", "info": "육류 반찬",
+    },
+    "생야채무침": {
+        "calorie": "50 kcal", "carbs": "8 g", "protein": "2 g", "fat": "1 g",
+        "allergy_info": "없음", "info": "신선 채소",
+    },
+    "코울슬러": {
+        "calorie": "150 kcal", "carbs": "15 g", "protein": "2 g", "fat": "9 g",
+        "allergy_info": "유제품(마요네즈)", "info": "양배추 샐러드",
+    },
+}
 
-def get_latest_menu_detail_url():
-    """ 공지사항 목록에서 가장 최근의 '한림대 학생식당 메뉴게시' 링크를 찾습니다. """
-    NOTICE_LIST_URL = "https://dorm.ourhome.co.kr/notice.aspx"
-    BASE_URL = "https://dorm.ourhome.co.kr/" 
+# 모든 DB를 하나로 통합하여 검색을 용이하게 합니다.
+NUTRITION_MANUAL_DB = {**RICE_MAIN_DB, **SOUP_STEW_DB, **SIDE_DISHES_DB}
 
-    try:
-        response = requests.get(NOTICE_LIST_URL)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
+def generate_final_response(menu_names_list):
+    """
+    제공된 메뉴 이름 리스트와 수동 DB를 매칭하여 최종 응답을 구성합니다.
+    (크롤링/OCR 로직이 없으므로, 메뉴 리스트를 인자로 직접 받습니다.)
+    """
 
-        # [최종 수정]: "board_list" 클래스를 가진 DIV 태그를 찾습니다.
-        board_area = soup.find('div', class_='board_list') 
-        
-        if not board_area: 
-            # 만약 div board_list를 못 찾을 경우, 아래 메시지가 출력됩니다.
-            print("경고: 상위 목록 컨테이너(div class='board_list')를 찾지 못했습니다.")
-            return None
-
-        # 테이블 안의 모든 링크('a' 태그)를 찾습니다.
-        links = board_area.find_all('a') 
-        
-        for link in links:
-            title = link.get_text(strip=True)
-            href = link.get('href')
-
-            if "한림대 학생식당 메뉴게시" in title and "seq=" in href:
-                if href.startswith('http'):
-                    return href
-                else:
-                    return f"{BASE_URL}{href}"
-
-        print("경고: '한림대 학생식당 메뉴게시' 링크를 찾지 못했습니다.")
-        return None
-
-    except requests.exceptions.RequestException as e:
-        print(f"목록 페이지 접속 오류 발생: {e}")
-        return None
-
-    except requests.exceptions.RequestException as e:
-        print(f"목록 페이지 접속 오류 발생: {e}")
-        return None
-
-
-def get_menu_image_url(detail_page_url):
-    """ 2차 크롤링: 상세 페이지에서 메뉴 이미지의 URL을 추출합니다. """
-    try:
-        response = requests.get(detail_page_url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # [주의]: 이미지 태그의 src 속성을 정확히 찾아야 합니다.
-        # 공지사항 본문 내용이 들어있는 영역을 찾은 후 그 안의 <img> 태그를 찾습니다.
-        # 이 부분의 클래스명은 실제 웹사이트 구조에 따라 달라질 수 있습니다.
-        image_tag = soup.find('td', {'class': 'bbs_txt'}).find('img')
-        
-        if image_tag and image_tag.get('src'):
-            return image_tag.get('src')
-        return None
-
-    except Exception as e:
-        print(f"이미지 URL 추출 오류 발생: {e}")
-        return None
-
-
-def download_menu_image(image_url, save_path="temp_menu.jpg"):
-    """ 메뉴 이미지를 다운로드하여 로컬에 저장합니다. """
-    try:
-        response = requests.get(image_url, stream=True)
-        response.raise_for_status()
-            
-        with open(save_path, 'wb') as file:
-            for chunk in response.iter_content(chunk_size=8192):
-                file.write(chunk)
-        return save_path
-            
-    except requests.exceptions.RequestException as e:
-        print(f"이미지 다운로드 오류 발생: {e}")
-        return None
-
-
-def detect_text_from_image(image_path):
-    """ Google Cloud Vision API를 사용하여 이미지에서 텍스트를 추출하고, 임시 파일을 삭제합니다. """
-    
-    try:
-        client = vision.ImageAnnotatorClient()
-        with io.open(image_path, 'rb') as image_file:
-            content = image_file.read()
-
-        image = vision.Image(content=content)
-        response = client.text_detection(image=image)
-        
-        if response.text_annotations:
-            # 이미지 전체의 텍스트 반환
-            return response.text_annotations[0].description
-        return ""
-    
-    except GoogleAPICallError as e:
-        print(f"Vision API 호출 오류 발생 (인증 문제): {e}")
-        return None
-        
-    finally:
-        # 사용 후 임시 파일 삭제
-        if os.path.exists(image_path):
-            os.remove(image_path)
-
-
-def clean_ocr_text_to_menu_list(full_text):
-    """ OCR 추출 텍스트를 파싱하여 메뉴 이름 리스트를 만듭니다. """
-    menu_names = []
-    lines = full_text.split('\n')
-    
-    for line in lines:
-        if "요일:" in line:
-            parts = line.split(':')
-            if len(parts) > 1:
-                # '닭곰탕, 잡채, 깍두기'와 같은 부분만 가져옵니다.
-                menu_items_raw = parts[1].strip()
-                # 쉼표, 슬래시 등을 기준으로 메뉴를 분리하고 불필요한 공백을 제거합니다.
-                items = [item.strip() for item in menu_items_raw.replace('/', ',').split(',') if item.strip()]
-                
-                for item in items:
-                    # 너무 짧거나 불필요한 텍스트 필터링 (ex: 띄어쓰기, 괄호 제거)
-                    clean_item = item.replace('(', '').replace(')', '').replace('.', '').strip()
-                    if len(clean_item) > 1 and not any(keyword in clean_item for keyword in ["식단", "아침", "점심", "저녁"]):
-                        menu_names.append(clean_item)
-                        
-    return menu_names
-
-
-# ==============================================================================
-# 3. 최종 API 응답 구성
-# ==============================================================================
-def generate_final_response():
-    """ 최종 학식 메뉴 응답 구성 (OCR 텍스트 기반 및 수동 DB 매칭) """
-    
-    # 1. 1차 크롤링: 최신 상세 페이지 URL 가져오기
-    detail_page_url = get_latest_menu_detail_url()
-    if not detail_page_url:
-        return json.dumps({"error": "메뉴 상세 페이지 링크를 찾을 수 없음"}, indent=4, ensure_ascii=False)
-    
-    # 2. 2차 크롤링: 이미지 URL 가져오기
-    IMAGE_URL = "https://dorm.ourhome.co.kr/image/notice/2fca66b5-288b-4f8a-873a-4b8045076143.jpg"
-
-    # 3. 이미지 다운로드 및 OCR 분석
-    temp_file_path = download_menu_image(IMAGE_URL)
-    if not temp_file_path:
-        return json.dumps({"error": "이미지 다운로드 실패"}, indent=4, ensure_ascii=False)
-
-    full_ocr_text = detect_text_from_image(temp_file_path)
-    if not full_ocr_text:
-        return json.dumps({"error": "OCR 텍스트 추출 실패"}, indent=4, ensure_ascii=False)
-    
-    # 4. 메뉴 이름 클리닝
-    menu_names_from_ocr = clean_ocr_text_to_menu_list(full_ocr_text)
-    
     final_menu = []
-    
-    for name in menu_names_from_ocr:
-        # 5. 수동 DB 매칭
-        # 공백 제거 후 DB 검색 (ex: "제육덮밥" == "제육 덮밥" 방지)
-        cleaned_name_key = name.replace(" ", "")
-        
+
+    for name in menu_names_list:
+        # 1. 수동 DB 매칭
+        # 공백/특수문자 제거 후 DB 검색
+        cleaned_name_key = name.replace(" ", "").replace("/", "").replace(",", "").strip()
+
+        # DB 검색. 없을 경우 기본 '매칭 데이터 없음' 정보 반환
         nutrition = NUTRITION_MANUAL_DB.get(cleaned_name_key, {
-            "calories": 0, "protein": 0, "carbs": 0, "fat": 0, "allergy_info": "매칭 데이터 없음"
+            "calorie": "정보 없음", "protein": "정보 없음", "carbs": "정보 없음", "fat": "정보 없음", "allergy_info": "매칭 데이터 없음", "info": "정보 없음"
         })
-        
+
+        # DB에 있는 "allergy" 키를 "allergy_info"로 통일 (기존 데이터 호환)
+        if "allergy" in nutrition:
+             nutrition["allergy_info"] = nutrition.pop("allergy")
+
+
         final_item = {
             "name": name,
-            "price": 0, # 가격 정보 필요
+            "price": "5,500", # 가격 정보는 수동으로 추가해야 합니다.
             "nutrition": nutrition
         }
         final_menu.append(final_item)
-        
+
     final_response = {
         "date": datetime.now().strftime("%Y-%m-%d"),
         "restaurant": "한림대 학생 식당",
         "menu_list": final_menu
     }
-    
+
     return json.dumps(final_response, indent=4, ensure_ascii=False)
 
 # ==============================================================================
 # 테스트 실행
+# (실제 메뉴 리스트를 직접 입력하여 테스트합니다.)
 # ==============================================================================
 if __name__ == "__main__":
-    print("\n--- 백엔드 학식 API 로직 테스트 시작 ---")
-    api_response = generate_final_response()
+    # ⚠️ 테스트를 위해 임의의 메뉴 리스트를 정의합니다. ⚠️
+    TEST_MENU_LIST = [
+        "잡곡밥",
+        "닭곰탕",
+        "야채비빔고기튀김", # 새로 추가된 메뉴 테스트
+        "두부버섯된장국",
+        "배추김치",
+        "새로운 메뉴 (DB에 없음)"
+    ]
+
+    print("\n--- 백엔드 학식 API 로직 테스트 시작 (수동 DB 매칭) ---")
+    api_response = generate_final_response(TEST_MENU_LIST)
     print("\n--- 프론트엔드에 전달될 최종 API 응답 (JSON 형식) ---")
     print(api_response)
-
-# nutrition_api.py 파일 가장 아래쪽에 추가
-
-if __name__ == "__main__":
-    print("\n--- 1차 크롤링 테스트 시작 ---")
-    
-    # get_latest_menu_detail_url 함수를 호출하고 결과를 변수에 저장
-    test_url = get_latest_menu_detail_url()
-    
-    if test_url:
-        print(f"✅ 성공: 최신 메뉴 상세 URL을 찾았습니다.")
-        print(f"   추출된 URL: {test_url}")
-        
-        # 추가 확인: 찾은 URL이 실제 공지사항 링크 형태인지 확인
-        if "noticeView.aspx" in test_url and "seq=" in test_url:
-            print("   (URL 형식 검사 통과)")
-        else:
-            print("   ❌ 오류: URL 형식이 예상과 다릅니다. 크롤링 로직을 다시 확인하세요.")
-            
-    else:
-        print("❌ 실패: 최신 메뉴 상세 URL을 찾지 못했습니다. 크롤링 코드를 확인하세요.")
