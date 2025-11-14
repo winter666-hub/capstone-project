@@ -159,7 +159,7 @@ class _MapScreenState extends State<MapScreen> {
       } while (byte >= 0x20);
 
       var dlat = ((lat & 1) != 0 ? ~(lat >> 1) : (lat >> 1));
-      lat = lat;
+      lat += dlat; // <--- 이 부분이 수정되었습니다.
 
       shift = 0;
       byte = 0;
@@ -170,7 +170,7 @@ class _MapScreenState extends State<MapScreen> {
       } while (byte >= 0x20);
 
       var dlng = ((lng & 1) != 0 ? ~(lng >> 1) : (lng >> 1));
-      lng = lng;
+      lng += dlng; // <--- 이 부분이 수정되었습니다.
 
       result.add(LatLng(lat / 100000.0, lng / 100000.0));
     }
