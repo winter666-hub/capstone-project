@@ -152,6 +152,40 @@ RICE_MAIN_DB = {
         "calorie": "450 kcal", "carbs": "40 g", "protein": "25 g", "fat": "20 g",
         "allergy_info": "밀, 계란, 유제품, 돼지고기", "info": "고지방 샌드위치",
     },
+    "닭고기카레라이스": {
+        "calorie": "550 kcal", "carbs": "75 g", "protein": "25 g", "fat": "18 g",
+        "allergy_info": "닭고기, 밀, 유제품", "info": "고칼로리, 일품 요리"
+    },
+    "순살돈까스": {"calorie": "400 kcal", "carbs": "30 g", "protein": "25 g",
+        "fat": "20 g", "allergy_info": "돼지고기, 밀, 계란", "info": "튀김류, 고지방"
+    },
+    "낙지김치찌개": {
+        "calorie": "180 kcal", "carbs": "12 g", "protein": "20 g", "fat": "5 g",
+        "allergy_info": "낙지, 새우젓", "info": "낙지의 타우린 풍부"
+    },
+    "해물볶음우동": {
+        "calorie": "550 kcal", "carbs": "70 g", "protein": "25 g", "fat": "20 g",
+        "allergy_info": "밀(면), 해산물", "info": "중식, 나트륨 주의"
+    },
+    "해물볶음짬뽕밥": {
+        "calorie": "650 kcal", "carbs": "80 g", "protein": "30 g", "fat": "25 g",
+        "allergy_info": "밀, 해산물(오징어, 새우)", "info": "중식, 고칼로리"
+    },
+    "치킨마요덮밥": {
+        "calorie": "720 kcal", "carbs": "85 g", "protein": "35 g", "fat": "30 g",
+        "allergy_info": "닭고기, 밀, 계란", "info": "마요네즈로 인한 고지방"
+    },
+    "돈마스터드미트볼": {"calorie": "400 kcal", "carbs": "30 g", "protein": "25 g", "fat": "20 g",
+        "allergy_info": "돼지고기, 밀, 계란", "info": "육류 반찬"
+    },
+    "소시지야채볶음": {
+        "calorie": "250 kcal", "carbs": "15 g", "protein": "15 g", "fat": "15 g",
+        "allergy_info": "돼지고기, 밀", "info": "가공육 주의"
+    },
+    "가자미구이": {
+        "calorie": "180 kcal", "carbs": "0 g", "protein": "30 g", "fat": "6 g",
+        "allergy_info": "생선(가자미)", "info": "단백질 풍부"
+    },
 }
 
 # --- 1-2. 국/찌개류 (Soup/Stew)
@@ -201,6 +235,26 @@ SOUP_STEW_DB = {
     "연두부계란찜": {
         "calorie": "90 kcal", "carbs": "5 g", "protein": "6 g", "fat": "5 g",
         "allergy_info": "계란, 대두", "info": "애호박계란찜과 유사",
+    },
+    "얼갈이된장국": {
+        "calorie": "60 kcal", "carbs": "8 g", "protein": "4 g", "fat": "2 g",
+        "allergy_info": "대두", "info": "된장 베이스, 저칼로리"
+    },
+    "차돌박이순두부찌개": {
+        "calorie": "350 kcal", "carbs": "15 g", "protein": "25 g", "fat": "20 g",
+        "allergy_info": "쇠고기, 대두(순두부)", "info": "차돌박이로 인한 지방 증가"
+    },
+    "순두부찌개": {
+        "calorie": "150 kcal", "carbs": "10 g", "protein": "10 g", "fat": "7 g",
+        "allergy_info": "대두(두부)", "info": "저칼로리 찌개"
+    },
+    "콩비지찌개": {
+        "calorie": "160 kcal", "carbs": "10 g", "protein": "15 g", "fat": "7 g",
+        "allergy_info": "대두", "info": "콩(대두) 단백질 풍부"
+    },
+    "호박고추장찌개": {
+        "calorie": "120 kcal", "carbs": "15 g", "protein": "8 g", "fat": "3 g",
+        "allergy_info": "대두(된장), 고추장", "info": "나트륨 주의"
     },
 }
 
@@ -380,6 +434,38 @@ SIDE_DISHES_DB = {
         "calorie": "150 kcal", "carbs": "15 g", "protein": "2 g", "fat": "9 g",
         "allergy_info": "유제품(마요네즈)", "info": "양배추 샐러드",
     },
+    "멸치호두볶음": {
+        "calorie": "140 kcal", "carbs": "10 g", "protein": "8 g", "fat": "8 g",
+        "allergy_info": "호두(견과류), 멸치", "info": "오메가3, 칼슘 보충"
+    },
+    "청경채굴소스볶음": {
+        "calorie": "90 kcal", "carbs": "10 g", "protein": "4 g", "fat": "4 g",
+        "allergy_info": "굴(해산물)", "info": "저칼로리 채소 반찬"
+    },
+    "오이맛살냉채": {
+        "calorie": "130 kcal", "carbs": "15 g", "protein": "6 g", "fat": "5 g",
+        "allergy_info": "계란, 밀", "info": "저지방, 시원한 메뉴"
+    },
+    "마늘쫑무침": {
+        "calorie": "40 kcal", "carbs": "7 g", "protein": "1 g", "fat": "1 g",
+        "allergy_info": "없음", "info": "마늘쫑 특유의 향"
+    },
+    "연두부명란젓": {
+        "calorie": "150 kcal", "carbs": "5 g", "protein": "15 g", "fat": "8 g",
+        "allergy_info": "대두, 명란(어란)", "info": "단백질 풍부"
+    },
+    "동그랑땡계란찜": {
+        "calorie": "200 kcal", "carbs": "10 g", "protein": "15 g", "fat": "10 g",
+        "allergy_info": "돼지고기, 계란", "info": "아이들 인기 반찬"
+    },
+    "고추어묵잡채": {
+        "calorie": "250 kcal", "carbs": "35 g", "protein": "10 g", "fat": "8 g",
+        "allergy_info": "밀, 어육", "info": "탄수화물 높음"
+    },
+    "오이지무침": {
+        "calorie": "30 kcal", "carbs": "5 g", "protein": "1 g", "fat": "0 g",
+        "allergy_info": "없음", "info": "저칼로리"
+    }
 }
 
 # 모든 DB를 하나로 통합하여 검색을 용이하게 합니다.
@@ -410,7 +496,7 @@ def generate_final_response(menu_names_list):
 
         final_item = {
             "name": name,
-            "price": "5,500", # 가격 정보는 수동으로 추가해야 합니다.
+            "price": "5,000", # 가격 정보는 수동으로 추가해야 합니다.
             "nutrition": nutrition
         }
         final_menu.append(final_item)
