@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-//Map Frontend
 // API 엔드포인트 설정 (백엔드 서버 주소)
 const String API_URL = 'http://10.0.2.2:5000';
 
@@ -21,7 +20,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: '한림 캠퍼스 맵',
       theme: ThemeData(
-        // 모바일 앱 느낌을 위해 기본 색상을 조정
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
@@ -31,8 +29,6 @@ class MyApp extends StatelessWidget {
 }
 
 // --- 데이터 모델 (변화 없음) ---
-
-// 건물 데이터 구조
 class Building {
   final String id;
   final String name;
@@ -59,7 +55,6 @@ class Building {
   }
 }
 
-// 경로 단계 데이터 구조
 class Step {
   final String instructions;
   final String distance;
@@ -71,7 +66,6 @@ class Step {
   }
 }
 
-// 개별 경로 데이터 구조
 class RouteOption {
   final String summary;
   final String distance;
@@ -92,7 +86,6 @@ class RouteOption {
   }
 }
 
-// 전체 경로 응답 데이터 구조
 class Directions {
   final String origin;
   final String destination;
@@ -109,7 +102,8 @@ class Directions {
       origin: json['start'] ?? json['origin'] ?? '출발지',
       destination: json['end'] ?? json['destination'] ?? '도착지',
       routes: (json['routes'] as List)
-          .map((i) => RouteOption.fromJson(i)).toList(),
+          .map((i) => RouteOption.fromJson(i))
+          .toList(),
     );
   }
 }
@@ -126,7 +120,6 @@ class HallymMapScreen extends StatefulWidget {
 class _HallymMapScreenState extends State<HallymMapScreen>
     with SingleTickerProviderStateMixin {
   final Completer<GoogleMapController> _controllerCompleter = Completer();
-  // TabController를 state에 통합하여 모바일 네비게이션에 적합하게 사용
   late TabController _tabController;
 
   static const CameraPosition _hallymCenter = CameraPosition(
@@ -142,10 +135,11 @@ class _HallymMapScreenState extends State<HallymMapScreen>
   bool _isLoading = true;
   String? _errorMessage;
 
+  String? _selectedBuildingId; // 건물 목록에서 선택된 건물의 ID
+
   @override
   void initState() {
     super.initState();
-    // 탭은 경로 검색, 건물 목록 2개
     _tabController = TabController(length: 2, vsync: this);
     _fetchBuildings();
   }
@@ -156,7 +150,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     super.dispose();
   }
 
-  // --- 데이터 패칭: 건물 목록 (변화 없음) ---
+  // --- 데이터 패칭: 건물 목록 ---
   Future<void> _fetchBuildings() async {
     setState(() {
       _isLoading = true;
@@ -182,16 +176,18 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     }
   }
 
-  // --- 데이터 패칭: 경로 검색 (변화 없음) ---
+  // --- 데이터 패칭: 경로 검색 ---
   Future<void> _fetchDirections() async {
     if (_selectedOrigin == null ||
         _selectedDestination == null ||
-        _selectedOrigin == _selectedDestination) return;
+        _selectedOrigin == _selectedDestination)
+      return;
 
     setState(() {
       _isLoading = true;
       _directions = null;
       _errorMessage = null;
+      _selectedBuildingId = null; // 경로 검색 시 건물 리스트 강조 초기화
     });
 
     final uri = Uri.parse('$API_URL/directions').replace(
@@ -229,8 +225,6 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     }
   }
 
-  // --- 맵 이동 및 마커 로직 (변화 없음) ---
-
   Future<void> _goToRouteBounds() async {
     if (!_controllerCompleter.isCompleted) return;
     final GoogleMapController controller = await _controllerCompleter.future;
@@ -238,7 +232,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     try {
       final origin = _buildings.firstWhere((b) => b.name == _selectedOrigin);
       final destination = _buildings.firstWhere(
-            (b) => b.name == _selectedDestination,
+        (b) => b.name == _selectedDestination,
       );
 
       final LatLngBounds bounds = LatLngBounds(
@@ -256,27 +250,35 @@ class _HallymMapScreenState extends State<HallymMapScreen>
         ),
       );
 
-      // 모바일 환경에 맞춰 패딩 조정
       controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 80));
     } catch (e) {
       print('건물 좌표 정보 오류: $e');
     }
   }
 
+  // ⭐️ 수정: 마커 색상을 조건에 따라 다르게 설정
   Set<Marker> _getMarkers() {
     final Set<Marker> markers = {};
     for (var building in _buildings) {
+      // 마커 색상 결정 로직
+      double hue = BitmapDescriptor.hueRed; // 기본 색상: 빨간색
+
+      // 1. 경로 검색 선택지인 경우 (하늘색/Azure)
+      if (_selectedOrigin == building.name ||
+          _selectedDestination == building.name) {
+        hue = BitmapDescriptor.hueAzure;
+      }
+      // 2. 건물 목록에서 선택된 경우 (노란색/Yellow)
+      else if (_selectedBuildingId == building.id) {
+        hue = BitmapDescriptor.hueYellow;
+      }
+
       markers.add(
         Marker(
           markerId: MarkerId(building.id),
           position: LatLng(building.lat, building.lng),
           infoWindow: InfoWindow(title: building.name),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            (_selectedOrigin == building.name ||
-                _selectedDestination == building.name)
-                ? BitmapDescriptor.hueAzure
-                : BitmapDescriptor.hueRed,
-          ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(hue),
         ),
       );
     }
@@ -286,10 +288,10 @@ class _HallymMapScreenState extends State<HallymMapScreen>
   // --- UI 위젯 구성: 드롭다운 (변화 없음) ---
 
   Widget _buildDropdown(
-      String? selectedValue,
-      String hint,
-      Function(String?) onChanged,
-      ) {
+    String? selectedValue,
+    String hint,
+    Function(String?) onChanged,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -311,35 +313,35 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     );
   }
 
-  // --- UI 위젯 구성: 경로 검색 탭 내용 ---
-
+  // --- UI 위젯 구성: 경로 검색 탭 내용 (변화 없음) ---
   Widget _buildDirectionsTab() {
-    // 모바일에서 스크롤 가능하도록 SingleChildScrollView 사용
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          // 출발지 드롭다운
           _buildDropdown(_selectedOrigin, '출발지를 선택하세요', (String? newValue) {
             setState(() {
               _selectedOrigin = newValue;
+              _selectedBuildingId = null; // 경로 드롭다운 사용 시 목록 강조 초기화
             });
           }),
           const SizedBox(height: 10),
-          // 도착지 드롭다운
-          _buildDropdown(_selectedDestination, '도착지를 선택하세요', (String? newValue) {
+          _buildDropdown(_selectedDestination, '도착지를 선택하세요', (
+            String? newValue,
+          ) {
             setState(() {
               _selectedDestination = newValue;
+              _selectedBuildingId = null; // 경로 드롭다운 사용 시 목록 강조 초기화
             });
           }),
           const SizedBox(height: 15),
-          // 검색 버튼
           ElevatedButton(
-            onPressed: (_selectedOrigin != null &&
-                _selectedDestination != null &&
-                _selectedOrigin != _selectedDestination) &&
-                !_isLoading
+            onPressed:
+                (_selectedOrigin != null &&
+                        _selectedDestination != null &&
+                        _selectedOrigin != _selectedDestination) &&
+                    !_isLoading
                 ? () => _fetchDirections()
                 : null,
             style: ElevatedButton.styleFrom(
@@ -351,21 +353,19 @@ class _HallymMapScreenState extends State<HallymMapScreen>
             ),
             child: _isLoading && _directions == null
                 ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 2,
-              ),
-            )
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
                 : const Text(
-              '경로 검색',
-              style: TextStyle(fontSize: 16, color: Colors.white),
-            ),
+                    '경로 검색',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
           ),
           const SizedBox(height: 20),
-
-          // 에러 메시지 표시
           if (_errorMessage != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
@@ -377,59 +377,57 @@ class _HallymMapScreenState extends State<HallymMapScreen>
                 ),
               ),
             ),
-
-          // 경로 검색 결과 리스트
           if (_directions != null)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: _directions!.routes.isNotEmpty
                   ? _directions!.routes.map((route) {
-                final index = _directions!.routes.indexOf(route);
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  elevation: 2,
-                  child: ExpansionTile(
-                    collapsedBackgroundColor: Colors.blue.shade50,
-                    title: Text(
-                      '${index + 1}. ${route.summary}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text('총 거리: ${route.distance}'),
-                    children: route.steps.map((step) {
-                      return ListTile(
-                        leading: const Icon(
-                          Icons.turn_right,
-                          color: Colors.blue,
+                      final index = _directions!.routes.indexOf(route);
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        elevation: 2,
+                        child: ExpansionTile(
+                          collapsedBackgroundColor: Colors.blue.shade50,
+                          title: Text(
+                            '${index + 1}. ${route.summary}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text('총 거리: ${route.distance}'),
+                          children: route.steps.map((step) {
+                            return ListTile(
+                              leading: const Icon(
+                                Icons.turn_right,
+                                color: Colors.blue,
+                              ),
+                              title: Text(step.instructions),
+                              trailing: Text(step.distance),
+                            );
+                          }).toList(),
                         ),
-                        title: Text(step.instructions),
-                        trailing: Text(step.distance),
                       );
-                    }).toList(),
-                  ),
-                );
-              }).toList()
+                    }).toList()
                   : [
-                Center(
-                    child: Text(
-                      _errorMessage ?? "경로를 찾을 수 없습니다.",
-                      textAlign: TextAlign.center,
-                    )
-                ),
-              ],
+                      Center(
+                        child: Text(
+                          _errorMessage ?? "경로를 찾을 수 없습니다.",
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
             ),
-          // 로딩 중이거나 검색 전일 경우
           if (_directions == null && !_isLoading && _errorMessage == null)
             const Center(
-              child: Text("출발지와 도착지를 선택하고 검색해주세요.", textAlign: TextAlign.center,),
+              child: Text(
+                "출발지와 도착지를 선택하고 검색해주세요.",
+                textAlign: TextAlign.center,
+              ),
             ),
         ],
       ),
     );
   }
 
-  // --- UI 위젯 구성: 건물 목록 탭 내용 ---
+  // --- UI 위젯 구성: 건물 목록 탭 내용 (노란색 강조 수정) ---
 
   Widget _buildBuildingListTab() {
     if (_isLoading) {
@@ -437,11 +435,12 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     }
     if (_errorMessage != null) {
       return Center(
-          child: Text(
-            _errorMessage!,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.red),
-          ));
+        child: Text(
+          _errorMessage!,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.red),
+        ),
+      );
     }
     if (_buildings.isEmpty) {
       return const Center(child: Text('표시할 건물 목록이 없습니다.'));
@@ -452,43 +451,65 @@ class _HallymMapScreenState extends State<HallymMapScreen>
       itemCount: _buildings.length,
       itemBuilder: (context, index) {
         final building = _buildings[index];
+
+        final bool isSelected = _selectedBuildingId == building.id;
+
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
           elevation: 2,
-          child: ListTile(
-            // 건물 이미지를 왼쪽 리딩 위젯으로 사용
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(4.0),
-              child: Image.network(
-                building.imageUrl,
-                width: 60,
-                height: 60,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                const Icon(Icons.apartment, size: 40), // 이미지 로드 실패 시 아이콘
+          child: Container(
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? Colors.yellow.shade100
+                  : Colors.white, // 선택 시 노란색 배경
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected ? Colors.yellow.shade700 : Colors.transparent,
+                width: isSelected ? 2 : 0,
               ),
             ),
-            title: Text(
-              building.name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            child: ListTile(
+              tileColor: Colors.transparent,
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(4.0),
+                child: Image.network(
+                  building.imageUrl,
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.apartment, size: 40),
+                ),
+              ),
+              title: Text(
+                building.name,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text('ID: ${building.id}'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                setState(() {
+                  _selectedBuildingId = building.id;
+                  // ⭐️ 중요: 건물 목록 항목을 탭하면 경로 검색 상태를 초기화하여,
+                  // 마커 색상이 노란색으로 정확히 표시되도록 함
+                  _selectedOrigin = null;
+                  _selectedDestination = null;
+                  _directions = null;
+                });
+
+                // 건물 위치로 지도를 이동
+                if (_controllerCompleter.isCompleted) {
+                  final GoogleMapController controller =
+                      await _controllerCompleter.future;
+                  controller.animateCamera(
+                    CameraUpdate.newLatLngZoom(
+                      LatLng(building.lat, building.lng),
+                      17.0,
+                    ),
+                  );
+                }
+              },
             ),
-            subtitle: Text('ID: ${building.id}'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () async {
-              // 건물 위치로 지도를 이동
-              if (_controllerCompleter.isCompleted) {
-                final GoogleMapController controller =
-                await _controllerCompleter.future;
-                controller.animateCamera(
-                  CameraUpdate.newLatLngZoom(
-                    LatLng(building.lat, building.lng),
-                    17.0,
-                  ),
-                );
-                // 지도로 이동 후 탭을 지도 뷰로 변경할 수도 있습니다 (선택 사항)
-                // _tabController.animateTo(0);
-              }
-            },
           ),
         );
       },
@@ -505,22 +526,20 @@ class _HallymMapScreenState extends State<HallymMapScreen>
         ),
         backgroundColor: Colors.blue.shade700,
         elevation: 0,
-        // AppBar의 하단에 TabBar를 배치하여 모바일 앱 디자인에 맞춤
         bottom: TabBar(
           controller: _tabController,
           tabs: const <Widget>[
             Tab(text: '경로 검색', icon: Icon(Icons.alt_route)),
             Tab(text: '건물 목록', icon: Icon(Icons.list)),
           ],
-          labelColor: Colors.white,
+          labelColor: Colors.yellowAccent,
           unselectedLabelColor: Colors.blue.shade200,
-          indicatorColor: Colors.white,
+          indicatorColor: Colors.yellowAccent,
         ),
       ),
       body: Column(
         children: <Widget>[
-          // 상단: 탭 바 뷰 - 모바일에서 적절한 높이를 차지하도록 Expanded 비율 조정
-          // 화면의 약 45% (4/9)를 상단 콘텐츠 영역으로 사용
+          // 상단: 탭 바 뷰
           Expanded(
             flex: 4,
             child: TabBarView(
@@ -532,7 +551,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
             ),
           ),
 
-          // 하단: Google Map - 화면의 약 55% (5/9)를 지도 영역으로 사용
+          // 하단: Google Map
           Expanded(
             flex: 5,
             child: Stack(
@@ -547,8 +566,6 @@ class _HallymMapScreenState extends State<HallymMapScreen>
                     }
                   },
                 ),
-                // 웹 환경에서 API 키 누락 시 발생하는 TypeError에 대한 안내 메시지는 모바일에서는 제거하거나 단순화하는 것이 좋지만,
-                // 개발 환경을 고려하여 Positioned 위젯의 크기만 조정하여 유지합니다.
                 Positioned(
                   bottom: 5,
                   left: 5,
@@ -563,7 +580,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
                       'Web/PC 환경에서 지도 오류 발생 시, index.html의 Google Maps API 키 설정을 확인하세요.',
                       style: TextStyle(
                         color: Colors.yellowAccent,
-                        fontSize: 10, // 모바일 화면에 맞춰 글꼴 크기 축소
+                        fontSize: 10,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -576,3 +593,4 @@ class _HallymMapScreenState extends State<HallymMapScreen>
       ),
     );
   }
+}
