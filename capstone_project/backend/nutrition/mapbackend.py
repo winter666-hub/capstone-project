@@ -25,29 +25,26 @@ hallym_buildings = [
     {'id': 'main_gate', 'name': '정문', 'lat': 37.883970, 'lng': 127.737828, 'imageUrl': ''},
     {'id': 'CLC', 'name': 'Campus Life Center', 'lat': 37.886730, 'lng': 127.740115, 'imageUrl': ''},
     {'id': 'library', 'name': '일송기념도서관', 'lat': 37.884777, 'lng': 127.737378, 'imageUrl': ''},
-    {'id': 'international', 'name': '국제관', 'lat': 37.886737, 'lng': 127.7308251, 'imageUrl': ''},
+    {'id': 'international', 'name': '국제관', 'lat': 37.886737, 'lng': 127.740924, 'imageUrl': ''},
     {'id': 'engineering', 'name': '공학관', 'lat': 37.886341, 'lng': 127.735815, 'imageUrl': ''},
-    {'id': 'social_science_first', 'name': '사회경영1관', 'lat': 37.888278, 'lng': 127.748232, 'imageUrl': ''},
+    {'id': 'social_science_first', 'name': '사회경영1관', 'lat': 37.888278, 'lng': 127.738239, 'imageUrl': ''},
     
     # 학내 주요 건물 및 시설물
     {'id': 'main_hall_humanities_1', 'name': '대학본부 * 인문1관', 'lat': 37.886552, 'lng': 127.737988, 'imageUrl': ''},
     {'id': 'humanities_2', 'name': '인문 2관', 'lat': 37.886359, 'lng': 127.737371, 'imageUrl': ''},
-    {'id': 'industry_acad_coop', 'name': '산학협력관', 'lat': 37.887360, 'lng': 127.738165, 'imageUrl': ''},
+    {'id': 'Ilsong_ArtHall', 'name': '일송아트홀', 'lat': 37.887029, 'lng': 127.737003, 'imageUrl': ''},
     {'id': 'med_bio_research', 'name': '의료*바이오융합연구원', 'lat': 37.885969, 'lng': 127.737688, 'imageUrl': ''},
-    {'id': 'dohun_global', 'name': '도헌글로벌스쿨', 'lat': 37.884582, 'lng': 127.736506, 'imageUrl': ''},
     {'id': 'sasaek_gil', 'name': '사색의 길', 'lat': 37.885446, 'lng': 127.737161, 'imageUrl': ''},
     {'id': 'forest_of_life', 'name': '생명의 숲', 'lat': 37.885453, 'lng': 127.736249, 'imageUrl': ''},
     {'id': 'ilsong_garden', 'name': '일송정원', 'lat': 37.886007, 'lng': 127.736013, 'imageUrl': ''},
     {'id': 'medicine_hall', 'name': '의학관', 'lat': 37.885974, 'lng': 127.737267, 'imageUrl': ''},
     {'id': 'main_hall_annex', 'name': '대학본부별관', 'lat': 37.886644, 'lng': 127.738688, 'imageUrl': ''},
-    {'id': 'biz_incubation_center', 'name': '창업보육센터', 'lat': 37.885026, 'lng': 127.735725, 'imageUrl': ''},
-    {'id': 'community_education', 'name': '커뮤니티교육원', 'lat': 37.884385, 'lng': 127.738757, 'imageUrl': ''},
     {'id': 'social_science_second', 'name': '사회*경영2관', 'lat': 37.887804, 'lng': 127.738344, 'imageUrl': ''},
     {'id': 'natural_science', 'name': '자연과학관', 'lat': 37.885827, 'lng': 127.736789, 'imageUrl': ''},
     {'id': 'life_science', 'name': '생명과학관', 'lat': 37.885257, 'lng': 127.735877, 'imageUrl': ''},
     {'id': 'international_conf', 'name': '국제회의관', 'lat': 37.884047, 'lng': 127.738402, 'imageUrl': ''},
     {'id': 'basic_education', 'name': '기초교육관', 'lat': 37.888538, 'lng': 127.738090, 'imageUrl': ''},
-    {'id': 'ROTC', 'name': '학군단', 'lat': 37.888348, 'lng': 127.739061, 'imageUrl': ''},
+    {'id': 'Hallym_Rec_Center', 'name': '한림레크리에이션센터', 'lat': 37.884616, 'lng': 127.738773, 'imageUrl': ''},
     
     # 학생생활관 (Domitory ID 수정)
     {'id': 'dorm_1', 'name': '학생생활관 1관', 'lat': 37.885590, 'lng': 127.740754, 'imageUrl': ''},
@@ -59,8 +56,8 @@ hallym_buildings = [
     {'id': 'dorm_7', 'name': '학생생활관 7관', 'lat': 37.886679, 'lng': 127.741563, 'imageUrl': ''},
     {'id': 'dorm_8', 'name': '학생생활관 8관', 'lat': 37.887110, 'lng': 127.741445, 'imageUrl': ''},
     # 체육 시설 및 기타
-    {'id': 'sports_equipment', 'name': '체육 기자재실', 'lat': 37.887269, 'lng': 127.738833, 'imageUrl': ''},
-    {'id': 'H_Stadium', 'name': 'H Stadium', 'lat': 37.888222, 'lng': 127.737337, 'imageUrl': ''},
+    {'id': 'sports_equipment', 'name': '체육 기자재실', 'lat': 37.887414, 'lng': 127.738818, 'imageUrl': ''},
+    {'id': 'H_Stadium', 'name': 'H Stadium', 'lat': 37.888108, 'lng': 127.736964, 'imageUrl': ''},
     {'id': 'Out_Tennis', 'name': '실외 테니스장', 'lat': 37.888222, 'lng': 127.737337, 'imageUrl': ''},
     {'id': 'Golf_range', 'name': '골프 연습장', 'lat': 37.887889, 'lng': 127.736779, 'imageUrl': ''},
     {'id': 'Basketball_court', 'name': '농구장', 'lat': 37.887543, 'lng': 127.737632, 'imageUrl': ''},
@@ -70,8 +67,7 @@ hallym_buildings = [
     {'id': 'ssireum_ring', 'name': '씨름장', 'lat': 37.887620, 'lng': 127.740788, 'imageUrl': ''},
     {'id': 'greenhouse', 'name': '온실', 'lat': 37.886653, 'lng': 127.735593, 'imageUrl': ''},
     {'id': 'Hallym_Hospital', 'name': '한림대학교 춘천성심병원', 'lat': 37.883988, 'lng': 127.739875, 'imageUrl': ''},
-    {'id': 'Parking_lot_1', 'name': '주차장 1', 'lat': 37.884829, 'lng': 127.738863, 'imageUrl': ''},
-    {'id': 'Parking_lot_2', 'name': '주차장 2', 'lat': 37.888108, 'lng': 127.736964, 'imageUrl': ''}
+    {'id': 'Parking_lot_1', 'name': '주차장 1', 'lat': 37.884829, 'lng': 127.738863, 'imageUrl': ''}
 ]
 
 # --- 건물 경로 데이터 ---
