@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-// API 엔드포인트 설정 (백엔드 서버 주소)
+// API 엔드포인트 설정 (백엔드 서버 주소 - 에뮬레이터 전용)
 const String API_URL = 'http://10.0.2.2:5000';
 
 void main() {
@@ -28,12 +28,13 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// --- 데이터 모델 (변화 없음) ---
+// --- 데이터 모델 ---
 class Building {
   final String id;
   final String name;
   final double lat;
   final double lng;
+  // imageUrl 필드는 백엔드에서 받아오지만, 로컬 이미지 맵핑에 사용될 수도 있습니다.
   final String imageUrl;
 
   Building({
@@ -50,6 +51,7 @@ class Building {
       name: json['name'],
       lat: json['lat'],
       lng: json['lng'],
+      // 백엔드에서 받은 URL을 그대로 저장합니다. (사용하지 않더라도 데이터 모델은 유지)
       imageUrl: json['imageUrl'],
     );
   }
@@ -137,6 +139,21 @@ class _HallymMapScreenState extends State<HallymMapScreen>
 
   String? _selectedBuildingId; // 건물 목록에서 선택된 건물의 ID
 
+  // ⭐️ 추가된 부분: 건물 ID와 로컬 Assets 경로를 매핑
+  final Map<String, String> _imageMap = {
+    // 🚨 실제 프로젝트에 맞게 ID와 파일 경로를 수정하세요.
+    // 키(ID)는 백엔드에서 받는 건물 ID와 일치해야 합니다.
+    'main_gate': 'assets/images/main_gate.jpg',
+    'CLC': 'assets/images/CLC.jpg',
+    'dorm_8': 'assets/images/dorm_8.jpg',
+    'library': 'assets/images/library.jpg',
+
+    // 다른 건물들도 여기에 추가합니다.
+  };
+
+  // 매핑되지 않은 ID에 대해 사용할 기본 이미지 경로
+  final String _defaultAssetImage = 'assets/images/library.jpg';
+
   @override
   void initState() {
     super.initState();
@@ -176,7 +193,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     }
   }
 
-  // --- 데이터 패칭: 경로 검색 ---
+  // --- 데이터 패칭: 경로 검색 (변화 없음) ---
   Future<void> _fetchDirections() async {
     if (_selectedOrigin == null ||
         _selectedDestination == null ||
@@ -187,7 +204,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
       _isLoading = true;
       _directions = null;
       _errorMessage = null;
-      _selectedBuildingId = null; // 경로 검색 시 건물 리스트 강조 초기화
+      _selectedBuildingId = null;
     });
 
     final uri = Uri.parse('$API_URL/directions').replace(
@@ -256,20 +273,16 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     }
   }
 
-  // ⭐️ 수정: 마커 색상을 조건에 따라 다르게 설정
+  // ⭐️ 수정: 마커 색상을 조건에 따라 다르게 설정 (변화 없음)
   Set<Marker> _getMarkers() {
     final Set<Marker> markers = {};
     for (var building in _buildings) {
-      // 마커 색상 결정 로직
-      double hue = BitmapDescriptor.hueRed; // 기본 색상: 빨간색
+      double hue = BitmapDescriptor.hueRed;
 
-      // 1. 경로 검색 선택지인 경우 (하늘색/Azure)
       if (_selectedOrigin == building.name ||
           _selectedDestination == building.name) {
         hue = BitmapDescriptor.hueAzure;
-      }
-      // 2. 건물 목록에서 선택된 경우 (노란색/Yellow)
-      else if (_selectedBuildingId == building.id) {
+      } else if (_selectedBuildingId == building.id) {
         hue = BitmapDescriptor.hueYellow;
       }
 
@@ -286,7 +299,6 @@ class _HallymMapScreenState extends State<HallymMapScreen>
   }
 
   // --- UI 위젯 구성: 드롭다운 (변화 없음) ---
-
   Widget _buildDropdown(
     String? selectedValue,
     String hint,
@@ -323,7 +335,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
           _buildDropdown(_selectedOrigin, '출발지를 선택하세요', (String? newValue) {
             setState(() {
               _selectedOrigin = newValue;
-              _selectedBuildingId = null; // 경로 드롭다운 사용 시 목록 강조 초기화
+              _selectedBuildingId = null;
             });
           }),
           const SizedBox(height: 10),
@@ -332,7 +344,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
           ) {
             setState(() {
               _selectedDestination = newValue;
-              _selectedBuildingId = null; // 경로 드롭다운 사용 시 목록 강조 초기화
+              _selectedBuildingId = null;
             });
           }),
           const SizedBox(height: 15),
@@ -427,8 +439,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     );
   }
 
-  // --- UI 위젯 구성: 건물 목록 탭 내용 (노란색 강조 수정) ---
-
+  // --- UI 위젯 구성: 건물 목록 탭 내용 (로컬 이미지 사용) ---
   Widget _buildBuildingListTab() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -454,6 +465,9 @@ class _HallymMapScreenState extends State<HallymMapScreen>
 
         final bool isSelected = _selectedBuildingId == building.id;
 
+        // ⭐️ 수정된 부분: 건물 ID에 따라 로컬 Assets 경로 가져오기
+        final String assetPath = _imageMap[building.id] ?? _defaultAssetImage;
+
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
           elevation: 2,
@@ -472,8 +486,8 @@ class _HallymMapScreenState extends State<HallymMapScreen>
               tileColor: Colors.transparent,
               leading: ClipRRect(
                 borderRadius: BorderRadius.circular(4.0),
-                child: Image.network(
-                  building.imageUrl,
+                child: Image.asset(
+                  assetPath, // ⭐️ 매핑된 Assets 경로 변수 사용
                   width: 60,
                   height: 60,
                   fit: BoxFit.cover,
@@ -490,14 +504,11 @@ class _HallymMapScreenState extends State<HallymMapScreen>
               onTap: () async {
                 setState(() {
                   _selectedBuildingId = building.id;
-                  // ⭐️ 중요: 건물 목록 항목을 탭하면 경로 검색 상태를 초기화하여,
-                  // 마커 색상이 노란색으로 정확히 표시되도록 함
                   _selectedOrigin = null;
                   _selectedDestination = null;
                   _directions = null;
                 });
 
-                // 건물 위치로 지도를 이동
                 if (_controllerCompleter.isCompleted) {
                   final GoogleMapController controller =
                       await _controllerCompleter.future;
