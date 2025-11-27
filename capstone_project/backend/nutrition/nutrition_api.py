@@ -1,5 +1,3 @@
-# backend/nutrition/nutrition_api.py
-
 import json
 from datetime import datetime
 import os
@@ -580,12 +578,6 @@ CHEF_AND_U_ADDITIONS = {
 }
 # 모든 DB를 하나로 통합하여 검색을 용이하게 합니다.
 NUTRITION_MANUAL_DB = {**RICE_MAIN_DB, **SOUP_STEW_DB, **SIDE_DISHES_DB, **CHEF_AND_U_ADDITIONS}
-
-# backend/nutrition/nutrition_api.py
-
-# backend/nutrition/nutrition_api.py
-
-# backend/nutrition/nutrition_api.py
 
 def generate_final_response(menu_data_structure):
     """
