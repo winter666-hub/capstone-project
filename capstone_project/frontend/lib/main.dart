@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-// 지도, 버스 관련 패키지나 로직은 모두 제거했습니다.
-import 'screens/cafeteria_screen.dart'; // 당신이 만든 학식 화면 임포트
+import 'screens/map_screen.dart'; // 지도
+import 'screens/cafeteria_screen.dart'; // 학식
+import 'screens/bus_screen.dart';
 
 void main() {
-  // 앱 실행 전 초기화 (추후 비동기 작업 등을 위해 유지하는 것이 좋습니다)
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
@@ -14,19 +14,63 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // 앱의 제목 (기기 작업 관리자 등에서 보임)
-      title: '학식 앱 (Dev)',
+      title: '한림대 올인원 앱',
+      theme: ThemeData(primarySwatch: Colors.green, useMaterial3: true),
+      // [핵심] 이제 MainPage가 정의되었으므로 에러가 사라집니다.
+      home: const MainPage(),
+    );
+  }
+}
 
-      // 앱의 기본 테마 색상 설정 (학교 상징색 Green)
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        // 머티리얼 3 디자인 적용 (최신 Flutter 스타일)
-        useMaterial3: true,
+// ====================================================================
+// 🚀 MainPage 정의 (하단 탭 바가 있는 메인 화면)
+// ====================================================================
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  int _selectedIndex = 2; // 현재 선택된 탭 번호 (0: 지도, 1: 학식)
+
+  // 탭별 화면 목록
+  static final List<Widget> _widgetOptions = <Widget>[
+    const MapScreen(), // 0번: 지도 화면 (lib/screens/map_screen.dart)
+    const CafeteriaScreen(), // 1번: 학식 화면 (lib/screens/cafeteria_screen.dart)
+    const HallymBusArrivalScreen(), // [추가] 2번: 버스 화면
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _widgetOptions.elementAt(_selectedIndex),
+
+      bottomNavigationBar: BottomNavigationBar(
+        // 탭이 3개 이상일 때는 type을 fixed로 설정해야 색상이 잘 나옵니다.
+        type: BottomNavigationBarType.fixed,
+
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: '캠퍼스 맵'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.restaurant_menu),
+            label: '학식 메뉴',
+          ),
+          // 2. 탭 바 아이템에 버스 아이콘 추가
+          BottomNavigationBarItem(
+            icon: Icon(Icons.directions_bus), // 🚨 [추가]
+            label: '교통 정보',
+          ),
+        ],
+        // ... (나머지 코드 동일)
       ),
-
-      // [핵심] 앱이 켜지자마자 바로 학식 화면을 보여줍니다.
-      // 나중에 통합할 때 이 부분을 MainPage(탭 바)로 바꾸면 됩니다.
-      home: const CafeteriaScreen(),
     );
   }
 }
