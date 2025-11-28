@@ -28,6 +28,7 @@ hallym_buildings = [
     {'id': 'international', 'name': '국제관', 'lat': 37.886737, 'lng': 127.740924, 'imageUrl': ''},
     {'id': 'engineering', 'name': '공학관', 'lat': 37.886341, 'lng': 127.735815, 'imageUrl': ''},
     {'id': 'social_science_first', 'name': '사회경영1관', 'lat': 37.888278, 'lng': 127.738239, 'imageUrl': ''},
+    {'id': 'Hallym_Rec_Center', 'name': '한림레크리에이션센터', 'lat': 37.884616, 'lng': 127.738773, 'imageUrl': ''},
     
     # 학내 주요 건물 및 시설물
     {'id': 'main_hall_humanities_1', 'name': '대학본부 * 인문1관', 'lat': 37.886552, 'lng': 127.737988, 'imageUrl': ''},
@@ -44,7 +45,7 @@ hallym_buildings = [
     {'id': 'life_science', 'name': '생명과학관', 'lat': 37.885257, 'lng': 127.735877, 'imageUrl': ''},
     {'id': 'international_conf', 'name': '국제회의관', 'lat': 37.884047, 'lng': 127.738402, 'imageUrl': ''},
     {'id': 'basic_education', 'name': '기초교육관', 'lat': 37.888538, 'lng': 127.738090, 'imageUrl': ''},
-    {'id': 'Hallym_Rec_Center', 'name': '한림레크리에이션센터', 'lat': 37.884616, 'lng': 127.738773, 'imageUrl': ''},
+   
     
     # 학생생활관 (Domitory ID 수정)
     {'id': 'dorm_1', 'name': '학생생활관 1관', 'lat': 37.885590, 'lng': 127.740754, 'imageUrl': ''},
@@ -57,20 +58,17 @@ hallym_buildings = [
     {'id': 'dorm_8', 'name': '학생생활관 8관', 'lat': 37.887110, 'lng': 127.741445, 'imageUrl': ''},
     # 체육 시설 및 기타
     {'id': 'sports_equipment', 'name': '체육 기자재실', 'lat': 37.887414, 'lng': 127.738818, 'imageUrl': ''},
-    {'id': 'H_Stadium', 'name': 'H Stadium', 'lat': 37.888108, 'lng': 127.736964, 'imageUrl': ''},
     {'id': 'Out_Tennis', 'name': '실외 테니스장', 'lat': 37.888222, 'lng': 127.737337, 'imageUrl': ''},
     {'id': 'Golf_range', 'name': '골프 연습장', 'lat': 37.887889, 'lng': 127.736779, 'imageUrl': ''},
     {'id': 'Basketball_court', 'name': '농구장', 'lat': 37.887543, 'lng': 127.737632, 'imageUrl': ''},
-    {'id': 'Futsal', 'name': '풋살장', 'lat': 37.888528, 'lng': 127.739594, 'imageUrl': ''},
     {'id': 'ILSONG_Stadium', 'name': 'ILSONG Stadium', 'lat': 37.887882, 'lng': 127.739833, 'imageUrl': ''},
     {'id': 'In_Tennis', 'name': '실내테니스장', 'lat': 37.887489, 'lng': 127.741212, 'imageUrl': ''},
     {'id': 'ssireum_ring', 'name': '씨름장', 'lat': 37.887620, 'lng': 127.740788, 'imageUrl': ''},
-    {'id': 'greenhouse', 'name': '온실', 'lat': 37.886653, 'lng': 127.735593, 'imageUrl': ''},
     {'id': 'Hallym_Hospital', 'name': '한림대학교 춘천성심병원', 'lat': 37.883988, 'lng': 127.739875, 'imageUrl': ''},
     {'id': 'Parking_lot_1', 'name': '주차장 1', 'lat': 37.884829, 'lng': 127.738863, 'imageUrl': ''}
 ]
 
-# --- 건물 경로 데이터 ---
+# --- 건물 경로 데이터 (경로 데이터는 변경 없음) ---
 Hallym_Routes = {
     # 사용자가 제공한 경로 데이터 (정문 -> 일송기념도서관)
     'main_gate_to_library': { 
@@ -104,7 +102,8 @@ Hallym_Routes = {
                  'summary': '빠른 경로',
                  'distance': '300m',
                  'steps': [
-                     {'instructions': '정문에서 직진하여 길을 따라 CLC 방향으로 갑니다.', 'distance': '300m'},
+                     {'instructions': '정문에서 직진하여 길을 따라갑니다.', 'distance': '50m'},
+                    {'instructions': '우회전하여 CLC 방향으로 직진합니다.', 'distance': '250m'},
                  ]
              },
              {
@@ -151,8 +150,8 @@ Hallym_Routes = {
                  'summary': '직선 경로',
                  'distance': '400m',
                  'steps': [
-                     {'instructions': '정문에서  방향으로 직진합니다.', 'distance': '400m'},
-                     {'instructions': '좌회전해서 대학본부 * 인문1관에 도착합니다.', 'distance': ''},
+                     {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '400m'},
+                     {'instructions': '우회전해서 대학본부 * 인문1관에 도착합니다.', 'distance': ''},
                  ]
              },
         ]
@@ -220,20 +219,7 @@ Hallym_Routes = {
              },
         ]
     },
-    'main_gate_to_parking_lot2': { 
-        'start': '정문',
-        'end': '주차장 2',
-        'routes': [
-             {
-                 'summary': '직선 경로',
-                 'distance': '600m',
-                 'steps': [
-                     {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '300m'},
-                     {'instructions': 'CLC에서 좌회전하여 주차장2 방향으로 갑니다.', 'distance': '300m'},
-                 ]
-             },
-        ]
-    },
+    # 참고: 주차장 2에 대한 건물 데이터가 없어 주차장 2 경로 데이터는 제거했습니다.
     'main_gate_to_ILSONG_Stadium': { 
         'start': '정문',
         'end': 'ILSONG Stadium',
@@ -324,13 +310,215 @@ Hallym_Routes = {
                  'summary': '직선 경로',
                  'distance': '600m',
                  'steps': [
-                     {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '300m'},
-                     {'instructions': 'CLC에서 우회전해서 가다가 학생생활관 방향으로 갑니다.', 'distance': '300m'},
+                     {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '100m'},
+                     {'instructions': 'CLC에서 우회전해서 가다가 자회잔해서 학생생활관 방향으로 갑니다.', 'distance': '75m'},
+                        {'instructions': '직진하다가 학생생활관 1관에 도착합니다.', 'distance': '125m'},
                  ]
              },
         ]
     },
-
+    'main_gate_to_domitory2': {
+        'start': '정문',
+        'end': '학생생활관 2관',
+        'routes': [
+                {
+                 'summary': '직선 경로',
+                 'distance': '650m',
+                 'steps': [
+                     {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '150m'},
+                     {'instructions': 'CLC에서 우회전해서 가다가 자회잔해서 학생생활관 방향으로 갑니다.', 'distance': '100m'},
+                        {'instructions': '직진하다가 학생생활관 2관에 도착합니다.', 'distance': '125m'},
+                 ]
+                },
+        ]
+    },
+    'main_gate_to_domitory3': {
+        'start': '정문',
+        'end': '학생생활관 3관',
+        'routes': [
+                {
+                 'summary': '직선 경로',
+                 'distance': '700m',
+                 'steps': [
+                     {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '200m'},
+                     {'instructions': 'CLC에서 우회전해서 가다가 자회잔해서 학생생활관 방향으로 갑니다.', 'distance': '125m'},
+                        {'instructions': '직진하다가 학생생활관 3관에 도착합니다.', 'distance': '125m'},
+                 ]
+                },
+        ]
+    },  
+    'main_gate_to_domitory4': {
+        'start': '정문',        
+        'end': '학생생활관 4관',
+        'routes': [
+                {
+                 'summary': '직선 경로',
+                 'distance': '750m',
+                 'steps': [
+                     {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '250m'},
+                     {'instructions': 'CLC에서 우회전해서 가다가 자회잔해서 학생생활관 방향으로 갑니다.', 'distance': '150m'},
+                    {'instructions': '직진하다가 학생생활관 4관에 도착합니다.', 'distance': '125m'},
+                 ]
+                },
+        ]
+    },
+    'main_gate_to_domitory5': {
+        'start': '정문',
+        'end': '학생생활관 5관',
+        'routes': [
+                {
+                    'summary': '직선 경로',
+                    'distance': '800m',
+                    'steps': [
+                        {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '300m'},
+                        {'instructions': 'CLC에서 우회전해서 가다가 자회잔해서 학생생활관 방향으로 갑니다.', 'distance': '175m'},
+                            {'instructions': '직진하다가 학생생활관 5관에 도착합니다.', 'distance': '125m'},
+                    ]
+                    },
+        ]
+    },  
+    'main_gate_to_domitory6': {
+        'start': '정문',
+        'end': '학생생활관 6관',
+        'routes': [
+                {
+                    'summary': '직선 경로',
+                    'distance': '850m',
+                    'steps': [
+                        {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '350m'},
+                        {'instructions': 'CLC에서 우회전해서 가다가 자회잔해서 학생생활관 방향으로 갑니다.', 'distance': '200m'},
+                            {'instructions': '직진하다가 학생생활관 6관에 도착합니다.', 'distance': '125m'},
+                    ]
+                    },
+        ]
+    },  
+    'main_gate_to_domitory7': {
+        'start': '정문',
+        'end': '학생생활관 7관',
+        'routes': [
+                {
+                    'summary': '직선 경로',
+                    'distance': '900m',
+                    'steps': [
+                        {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '400m'},
+                        {'instructions': 'CLC에서 우회전해서 가다가 자회잔해서 학생생활관 방향으로 갑니다.', 'distance': '225m'},
+                            {'instructions': '직진하다가 학생생활관 7관에 도착합니다.', 'distance': '125m'},
+                    ]
+                    },
+        ]
+    },
+    'main_gate_to_domitory8': {
+        'start': '정문',
+        'end': '학생생활관 8관',
+        'routes': [
+                {
+                    'summary': '직선 경로',
+                    'distance': '950m',
+                    'steps': [
+                        {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '450m'},
+                        {'instructions': 'CLC에서 우회전해서 가다가 자회전해서 학생생활관 방향으로 갑니다.', 'distance': '250m'},
+                        {'instructions': '직진하다가 학생생활관 8관에 도착합니다.', 'distance': '125m'},
+                    ]
+                    },
+        ]
+    },
+    'main_gate_to_natural_science': { 
+        'start': '정문',    
+        'end': '자연과학관',
+        'routes': [
+                {
+                    'summary': '직선 경로',
+                    'distance': '550m',
+                    'steps': [
+                        {'instructions': '정문에서 도서관 방향으로 직진합니다.', 'distance': '300m'},
+                        {'instructions': '도서관 옆에 있는 계단을 타고 자연과학관 방향으로 갑니다.', 'distance': '250m'},
+                    ]
+                    },
+        ]
+    },
+    'main_gate_to_life_science': {
+        'start': '정문',
+        'end': '생명과학관',
+        'routes': [
+                {
+                    'summary': '직선 경로',
+                    'distance': '600m',
+                    'steps': [
+                        {'instructions': '정문에서 도서관 방향으로 직진합니다.', 'distance': '350m'},
+                        {'instructions': '도서관옆에 있는 계단을 타고 생명과학관 방향으로 갑니다.', 'distance': '250m'},
+                    ]
+                    },
+        ]
+    },
+    'main_gate_to_medicine_hall': {  
+        'start': '정문',
+        'end': '의학관',
+        'routes': [
+            {
+            'summary': '직선 경로',
+            'distance': '550m',
+            'steps': [
+                {'instructions': '정문에서 인문1관 방향으로 직진합니다.', 'distance': '300m'},
+                {'instructions': '의료*바이오융합연구원 쪽으로 자회전해서 인문1관과의 사이에 있는 계단을 타고 올라갑니다.', 'distance': '250m'},
+                ]
+            }
+        ]
+    },
+    'main_gate_to_basic_education': {  
+        'start': '정문',
+        'end': '기초교육관',
+        'routes': [
+            {
+            'summary': '직선 경로',
+            'distance': '850m',
+            'steps': [
+                {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '400m'},
+                {'instructions': 'CLC에서 우회전해서 길을 따라 기초교육관으로 갑니다.', 'distance': '450m'},
+                ]
+            }
+        ]
+    },
+    'main_gate_to_international_conf': {
+        'start': '정문',
+        'end': '국제회의관',
+        'routes': [
+            {
+            'summary': '직선 경로',
+            'distance': '300m',
+            'steps': [
+                {'instructions': '정문에서 좌회전하여 국제회의관(우리은행이 있는 건물)으로 갑니다.', 'distance': '300m'},
+                ]
+            }
+        ]
+    },
+    'main_gate_to_Hallym_Rec_Center': {
+        'start': '정문',
+        'end': '한림레크리에이션센터',
+        'routes': [
+            {
+            'summary': '직선 경로',
+            'distance': '450m',
+            'steps': [
+                {'instructions': '정문에서 도서관까지 간 다음 왼쪽으로 꺽어 한림레크리에이션센터로 갑니다.', 'distance': '250m'},
+                ]
+            }
+        ]
+    },
+    'main_gate_to_main_hall_annex': {
+        'start': '정문',
+        'end': '대학본부별관',
+        'routes': [
+            {
+            'summary': '직선 경로',
+            'distance': '500m',
+            'steps': [
+                {'instructions': '정문에서 인문1관 방향으로 직진합니다.', 'distance': '200m'},
+                {'instructions': '인문1관에서 오른쪽에 있는 건물이 대학본부별관입니다', 'distance': '100m'},
+            ]
+            }
+        ]
+    },
+    
 }
 
 
