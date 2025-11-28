@@ -121,6 +121,10 @@ app.*.symbols
 # Google Cloud Key File (구글 클라우드 비젼 api)
 eloquent-ratio-475209-t9-dd307f22e4d8.json
 
+#지도 api
+.env
+.env.txt
+
 wk7.jpg
 
 #버스 api
