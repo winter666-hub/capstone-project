@@ -140,17 +140,58 @@ class _HallymMapScreenState extends State<HallymMapScreen>
   String? _selectedBuildingId; // 건물 목록에서 선택된 건물의 ID
 
   // ⭐️ 추가된 부분: 건물 ID와 로컬 Assets 경로를 매핑
+ // 건물 ID와 로컬 Assets 경로를 매핑
   final Map<String, String> _imageMap = {
     // 🚨 실제 프로젝트에 맞게 ID와 파일 경로를 수정하세요.
     // 키(ID)는 백엔드에서 받는 건물 ID와 일치해야 합니다.
+    // 주요 건물
     'main_gate': 'assets/images/main_gate.jpg',
     'CLC': 'assets/images/CLC.jpg',
-    'dorm_8': 'assets/images/dorm_8.jpg',
     'library': 'assets/images/library.jpg',
 
-    // 다른 건물들도 여기에 추가합니다.
-  };
+    // 학과 건물
+    'basic_education': 'assets/images/basic_education.jpg',
+    'engineering': 'assets/images/engineering.jpg',
+    'medical_science_building': 'assets/images/medical_science_building.jpg',
+    'international_conf': 'assets/images/international_conf.jpg',
+    'international': 'assets/images/international.jpg',
+    'Hallym_Rec_Center': 'assets/images/Hallym_Rec_Center.jpg',
+    'life_science': 'assets/images/life_science.jpg',
+    'main_hall_annex': 'assets/images/main_hall_annex.jpg',
+    'main_hall_humanities_1': 'assets/images/main_hall_humanities_1.jpg',
+    'humanities_2': 'assets/images/humanities_2.jpg',
+    'medicine_hall': 'assets/images/medicine_hall.jpg',
+    'natural_science': 'assets/images/natural_science.jpg',
+    'social_science_first': 'assets/images/social_science_first.jpg',
+    'social_science_second': 'assets/images/social_science_second.jpg',
+    'Ilsong_ArtHall': 'assets/images/ilsong_arthall.jpg',
+    'forest_of_life': 'assets/images/forest_of_life.jpg',
+    'sasaek_gil': 'assets/images/sasaek_gil.jpg',
+    'ilsong_garden': 'assets/images/ilsong_garden.jpg',
 
+    // 기숙사
+    'dorm_1': 'assets/images/dorm_1.jpg',
+    'dorm_2': 'assets/images/dorm_2.jpg',
+    'dorm_3': 'assets/images/dorm_3.jpg',
+    'dorm_4': 'assets/images/dorm_4.jpg',
+    'dorm_5': 'assets/images/dorm_5.jpg',
+    'dorm_6': 'assets/images/dorm_6.jpg',
+    'dorm_7': 'assets/images/dorm_7.jpg',
+    'dorm_8': 'assets/images/dorm_8.jpg',
+    // 체육시설
+    'Out_Tennis': 'assets/images/Out_Tennis.jpg',
+    'Golf_range': 'assets/images/Golf_range.jpg',
+    'Basketball_court': 'assets/images/Basketball_court.jpg',
+    'ILSONG_Stadium': 'assets/images/ILSONG_Stadium.jpg',
+    'In_Tennis': 'assets/images/In_Tennis.jpg',
+    'ssireum_ring': 'assets/images/ssireum_ring.jpg',
+
+    // 기타
+    'med_bio_research': 'assets/images/med_bio_research.jpg',
+    'sports_equipment': 'assets/images/sports_equipment.jpg',
+    'Parking_lot_1': 'assets/images/Parking_lot.jpg',
+    'Hallym_Hospital': 'assets/images/Hallym_University_Hospital.jpg',
+  };
   // 매핑되지 않은 ID에 대해 사용할 기본 이미지 경로
   final String _defaultAssetImage = 'assets/images/library.jpg';
 
