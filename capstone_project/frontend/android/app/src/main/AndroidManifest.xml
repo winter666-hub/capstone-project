@@ -1,12 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="capstone_project"
+        android:label="Pika"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="${mapsApiKey}"/>
+            android:value="AIzaSyB9Br3U2MM4LPB684zSAjiGT2ZS_LuNoho"/>
 
         <activity
             android:name=".MainActivity"
