@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 import os
 from flask_cors import CORS
 from flask import Flask, jsonify, request
+=======
+#파이썬 지도 백엔드
+
+from flask import Flask, jsonify, request
+import os
+from flask_cors import CORS
+>>>>>>> 32d83a5b5bda1e1df79e833f48efe2ffdb2b897e
 from dotenv import load_dotenv
 
 # .env 파일에서 환경 변수 로드
@@ -19,7 +27,10 @@ if not GOOGLE_API_KEY:
     print("경고: GOOGLE_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
 
 # --- 한림대학교 주요 건물 좌표 데이터 (imageUrl 필드 포함) ---
+<<<<<<< HEAD
 # ⭐️ 수정: 모든 건물 객체에 'imageUrl': '' 필드를 추가하여 Flutter의 데이터 모델과 일치시킴
+=======
+>>>>>>> 32d83a5b5bda1e1df79e833f48efe2ffdb2b897e
 hallym_buildings = [
     {'id': 'main_gate', 'name': '정문', 'lat': 37.883970, 'lng': 127.737828, 'imageUrl': ''},
     {'id': 'CLC', 'name': 'Campus Life Center', 'lat': 37.886730, 'lng': 127.740115, 'imageUrl': ''},
@@ -577,8 +588,11 @@ def get_directions():
                 
                 # 요약에 역방향임을 명시
                 new_route['summary'] = f"역방향 경로: {route['summary']}"
+<<<<<<< HEAD
                 
                 # 단계 순서를 뒤집어 사용자 요청 방향에 맞는 안내처럼 보이게 합니다.
+=======
+>>>>>>> 32d83a5b5bda1e1df79e833f48efe2ffdb2b897e
                 new_route['steps'] = list(reversed(route['steps']))
                 
                 reversed_routes.append(new_route)
@@ -602,4 +616,10 @@ if __name__ == '__main__':
         print("경고: GOOGLE_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
         
     # Flask 앱 실행 시 debug=True 설정으로 개발 중 변경 사항 자동 반영
+<<<<<<< HEAD
     app.run(host='0.0.0.0', port=5000, debug=True)
+=======
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
+
+>>>>>>> 32d83a5b5bda1e1df79e833f48efe2ffdb2b897e

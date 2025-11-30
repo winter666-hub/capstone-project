@@ -238,8 +238,9 @@ class _HallymMapScreenState extends State<HallymMapScreen>
   Future<void> _fetchDirections() async {
     if (_selectedOrigin == null ||
         _selectedDestination == null ||
-        _selectedOrigin == _selectedDestination)
+        _selectedOrigin == _selectedDestination) {
       return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -436,92 +437,58 @@ class _HallymMapScreenState extends State<HallymMapScreen>
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  _buildOriginSelector(),
+
+                  const SizedBox(height: 20),
+                  const Text(
+                    '도착지 선택',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  _buildBuildingList(isOrigin: false),
+                  const Divider(height: 40),
+                  const Text(
+                    '경로 안내',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  _buildDirectionsList(), // 디자인 개선된 경로 안내 목록
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 20),
-          // ... (생략)
+        ],
+      ),
+    )
+  }
 
-          // 1. 일반적인 오류 메시지 (초기 건물 로드 실패 또는 경로 검색 요청 자체 실패)
-          if (_errorMessage != null && _directions == null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Text(
-                _errorMessage!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+  /// 출발지 선택 위젯 (GPS 버튼 + 건물 목록)
+  Widget _buildOriginSelector() {
+    final bool isCurrentLocationSelected =
+        _selectedOrigin?.id == 'current_location';
 
-          // 2. 경로 검색 성공 후 결과 표시
-          if (_directions != null)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: _directions!.routes.isNotEmpty
-                  ? _directions!.routes.map((route) {
-                      final index = _directions!.routes.indexOf(route);
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ExpansionTile(
-                          collapsedBackgroundColor: Colors.blue.shade50,
-                          backgroundColor: Colors.white,
-                          title: Text(
-                            '${index + 1}. ${route.summary}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                            '총 거리: ${route.distance}',
-                            style: TextStyle(color: Colors.blue.shade700),
-                          ),
-                          children: route.steps.map((step) {
-                            return ListTile(
-                              leading: const Icon(
-                                Icons.directions_walk,
-                                color: Colors.blue,
-                              ),
-                              title: Text(step.instructions),
-                              trailing: Text(step.distance),
-                            );
-                          }).toList(),
-                        ),
-                      );
-                    }).toList()
-                  : [
-                      // 3. 경로 검색은 되었으나, 백엔드에서 경로를 못 찾은 경우 (routes: [] 일 때)
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            // 404 응답의 메시지(API_URL) 또는 일반 경로 없음 메시지
-                            _errorMessage ?? "경로를 찾을 수 없습니다. 다른 경로를 시도해 보세요.",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+    return SizedBox(
+      height: 60,
+      child: Row(
+        children: [
+          // '내 위치' 버튼
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: ActionChip(
+              avatar: _isGettingLocation
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.my_location, size: 18),
+              label: const Text('내 위치'),
+              backgroundColor: isCurrentLocationSelected
+                  ? Colors.blue.shade100
+                  : Colors.grey.shade200,
+              onPressed: _isGettingLocation ? null : _getCurrentLocation,
             ),
-
-          // 4. 경로 검색 전 안내 메시지 (초기 상태)
-          if (_directions == null &&
-              !_isLoading &&
-              _errorMessage == null &&
-              _buildings.isNotEmpty)
-            const Center(
-              child: Text(
-                "출발지와 도착지를 선택하고 검색해주세요.",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
+          ),
+          // 건물 목록
+          Expanded(child: _buildBuildingList(isOrigin: true)),
         ],
       ),
     );
