@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 // [주소 설정] 본인의 IP 주소로 수정 필수!
-const String BUS_API_URL = 'http://10.170.209.27:5000/api/bus/arrival';
+const String BUS_API_URL = 'http://61.99.11.106:5000/api/bus/arrival';
 
 // 1. 데이터 모델
 class BusArrivalInfo {
@@ -40,7 +40,8 @@ class ScheduleInfo {
     required this.routeNo,
     required this.departureTime,
     required this.remainingToDeparture,
-  }) : destination = '', type = '셔틀';
+  }) : destination = '',
+       type = '셔틀';
 }
 
 // 2. 메인 화면
@@ -62,20 +63,57 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
 
   // [정적 시간표 데이터]
   static const List<String> SHUTTLE_TO_STATION_TIMETABLE = [
-    "08:30", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "17:40", "18:10", "19:00", "20:00"
+    "08:30",
+    "09:00",
+    "10:00",
+    "11:00",
+    "13:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
+    "17:40",
+    "18:10",
+    "19:00",
+    "20:00",
   ];
   static const List<String> SHUTTLE_TO_HALLYM_TIMETABLE = [
-    "08:05", "08:25", "08:45", "09:15", "10:15", "11:15", "13:15", "14:15", "15:15", "16:15", "17:15", "18:25"
+    "08:05",
+    "08:25",
+    "08:45",
+    "09:15",
+    "10:15",
+    "11:15",
+    "13:15",
+    "14:15",
+    "15:15",
+    "16:15",
+    "17:15",
+    "18:25",
   ];
   static const List<List<String>> GYEONGCHUN_TIMETABLE = [
-    ["06:12", "청량리", "급행"], ["07:01", "광운대", "일반"], ["12:30", "청량리", "일반"], 
-    ["14:20", "상봉", "일반"], ["16:30", "청량리", "일반"], ["17:30", "상봉", "일반"], 
-    ["18:40", "청량리", "급행"], ["20:10", "상봉", "일반"], ["22:15", "청량리", "일반"], ["23:30", "평내호평", "일반"]
+    ["06:12", "청량리", "급행"],
+    ["07:01", "광운대", "일반"],
+    ["12:30", "청량리", "일반"],
+    ["14:20", "상봉", "일반"],
+    ["16:30", "청량리", "일반"],
+    ["17:30", "상봉", "일반"],
+    ["18:40", "청량리", "급행"],
+    ["20:10", "상봉", "일반"],
+    ["22:15", "청량리", "일반"],
+    ["23:30", "평내호평", "일반"],
   ];
   static const List<List<String>> ITX_TIMETABLE = [
-    ["06:07", "용산"], ["07:21", "용산"], ["09:18", "용산"], ["12:15", "용산"], 
-    ["15:30", "용산"], ["17:12", "용산"], ["18:30", "용산"], ["19:45", "용산"], 
-    ["21:15", "용산"], ["22:14", "용산"]
+    ["06:07", "용산"],
+    ["07:21", "용산"],
+    ["09:18", "용산"],
+    ["12:15", "용산"],
+    ["15:30", "용산"],
+    ["17:12", "용산"],
+    ["18:30", "용산"],
+    ["19:45", "용산"],
+    ["21:15", "용산"],
+    ["22:14", "용산"],
   ];
 
   ScheduleInfo? nextShuttleToStation;
@@ -104,16 +142,18 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
       final response = await http.get(Uri.parse(BUS_API_URL));
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
-        
+
         List<BusArrivalInfo> newApiResults = [];
         if (jsonResponse['data'] is List) {
           for (var item in jsonResponse['data']) {
-            newApiResults.add(BusArrivalInfo(
-              routeNo: item['routeNo']?.toString() ?? '?',
-              remainingTime: item['message'] ?? '정보없음',
-              remainingStations: '${item['remainingStations']}번째 전',
-              totalSeconds: item['remainingTimeSec'],
-            ));
+            newApiResults.add(
+              BusArrivalInfo(
+                routeNo: item['routeNo']?.toString() ?? '?',
+                remainingTime: item['message'] ?? '정보없음',
+                remainingStations: '${item['remainingStations']}번째 전',
+                totalSeconds: item['remainingTimeSec'],
+              ),
+            );
           }
         }
 
@@ -124,11 +164,17 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
           });
         }
       } else {
-        if (mounted) setState(() { _isLoading = false; });
+        if (mounted)
+          setState(() {
+            _isLoading = false;
+          });
       }
     } catch (e) {
       print('버스 로드 실패: $e');
-      if (mounted) setState(() { _isLoading = false; });
+      if (mounted)
+        setState(() {
+          _isLoading = false;
+        });
     }
   }
 
@@ -141,8 +187,16 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
 
   void _updateAllData() {
     final now = DateTime.now();
-    nextShuttleToStation = _calculateNextSchedule(SHUTTLE_TO_STATION_TIMETABLE, '셔틀', now);
-    nextShuttleToHallym = _calculateNextSchedule(SHUTTLE_TO_HALLYM_TIMETABLE, '셔틀', now);
+    nextShuttleToStation = _calculateNextSchedule(
+      SHUTTLE_TO_STATION_TIMETABLE,
+      '셔틀',
+      now,
+    );
+    nextShuttleToHallym = _calculateNextSchedule(
+      SHUTTLE_TO_HALLYM_TIMETABLE,
+      '셔틀',
+      now,
+    );
     nextGyeongchun = _calculateNextTrain(GYEONGCHUN_TIMETABLE, '경춘선', now);
     nextITX = _calculateNextTrain(ITX_TIMETABLE, 'ITX-청춘', now);
 
@@ -171,7 +225,9 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
     for (String targetNo in targetRoutes) {
       // API 결과 중에서 해당 번호 버스 찾기
       // (API는 같은 번호가 여러 대 올 수 있으므로 where 사용)
-      var matchingBuses = _apiResultBuffer.where((b) => b.routeNo == targetNo).toList();
+      var matchingBuses = _apiResultBuffer
+          .where((b) => b.routeNo == targetNo)
+          .toList();
 
       if (matchingBuses.isNotEmpty) {
         // 도착 예정 버스가 있으면 모두 카드 생성
@@ -180,57 +236,113 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
         }
       } else {
         // 도착 예정 버스가 없으면 "도착 정보 없음" 카드로 생성 (항상 표시!)
-        widgets.add(_buildBusCard(BusArrivalInfo(
-          routeNo: targetNo,
-          remainingTime: '도착 정보 없음',
-          remainingStations: '-',
-          totalSeconds: null
-        )));
+        widgets.add(
+          _buildBusCard(
+            BusArrivalInfo(
+              routeNo: targetNo,
+              remainingTime: '도착 정보 없음',
+              remainingStations: '-',
+              totalSeconds: null,
+            ),
+          ),
+        );
       }
     }
     return widgets;
   }
 
   // ... (시간표 계산 함수들은 그대로 유지) ...
-  ScheduleInfo? _calculateNextSchedule(List<String> timetable, String routeNo, DateTime now) {
+  ScheduleInfo? _calculateNextSchedule(
+    List<String> timetable,
+    String routeNo,
+    DateTime now,
+  ) {
     DateTime? bestTime;
     for (String t in timetable) {
       final parts = t.split(':');
-      final time = DateTime(now.year, now.month, now.day, int.parse(parts[0]), int.parse(parts[1]));
-      if (time.isAfter(now)) { bestTime = time; break; }
+      final time = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(parts[0]),
+        int.parse(parts[1]),
+      );
+      if (time.isAfter(now)) {
+        bestTime = time;
+        break;
+      }
     }
     if (bestTime == null && timetable.isNotEmpty) {
       final parts = timetable.first.split(':');
-      bestTime = DateTime(now.year, now.month, now.day, int.parse(parts[0]), int.parse(parts[1])).add(const Duration(days: 1));
+      bestTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(parts[0]),
+        int.parse(parts[1]),
+      ).add(const Duration(days: 1));
     }
     if (bestTime != null) {
       final diff = bestTime.difference(now);
-      return ScheduleInfo.bus(routeNo: routeNo, departureTime: "${bestTime.hour.toString().padLeft(2,'0')}:${bestTime.minute.toString().padLeft(2,'0')}", remainingToDeparture: _formatDuration(diff));
+      return ScheduleInfo.bus(
+        routeNo: routeNo,
+        departureTime:
+            "${bestTime.hour.toString().padLeft(2, '0')}:${bestTime.minute.toString().padLeft(2, '0')}",
+        remainingToDeparture: _formatDuration(diff),
+      );
     }
     return null;
   }
 
-  ScheduleInfo? _calculateNextTrain(List<List<String>> timetable, String routeNo, DateTime now) {
-     for (List<String> row in timetable) {
+  ScheduleInfo? _calculateNextTrain(
+    List<List<String>> timetable,
+    String routeNo,
+    DateTime now,
+  ) {
+    for (List<String> row in timetable) {
       try {
         final timeStr = row[0];
         final parts = timeStr.split(':');
-        final time = DateTime(now.year, now.month, now.day, int.parse(parts[0]), int.parse(parts[1]));
+        final time = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          int.parse(parts[0]),
+          int.parse(parts[1]),
+        );
         if (time.isAfter(now)) return _makeTrainInfo(routeNo, row, time, now);
       } catch (e) {}
     }
     if (timetable.isNotEmpty) {
-       final row = timetable.first;
-       final parts = row[0].split(':');
-       final time = DateTime(now.year, now.month, now.day, int.parse(parts[0]), int.parse(parts[1])).add(const Duration(days: 1));
-       return _makeTrainInfo(routeNo, row, time, now);
+      final row = timetable.first;
+      final parts = row[0].split(':');
+      final time = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(parts[0]),
+        int.parse(parts[1]),
+      ).add(const Duration(days: 1));
+      return _makeTrainInfo(routeNo, row, time, now);
     }
     return null;
   }
 
-  ScheduleInfo _makeTrainInfo(String routeNo, List<String> row, DateTime departureTime, DateTime now) {
-      final diff = departureTime.difference(now);
-      return ScheduleInfo.train(routeNo: routeNo, destination: row[1], type: row.length > 2 ? row[2] : routeNo, departureTime: "${departureTime.hour.toString().padLeft(2,'0')}:${departureTime.minute.toString().padLeft(2,'0')}", remainingToDeparture: _formatDuration(diff));
+  ScheduleInfo _makeTrainInfo(
+    String routeNo,
+    List<String> row,
+    DateTime departureTime,
+    DateTime now,
+  ) {
+    final diff = departureTime.difference(now);
+    return ScheduleInfo.train(
+      routeNo: routeNo,
+      destination: row[1],
+      type: row.length > 2 ? row[2] : routeNo,
+      departureTime:
+          "${departureTime.hour.toString().padLeft(2, '0')}:${departureTime.minute.toString().padLeft(2, '0')}",
+      remainingToDeparture: _formatDuration(diff),
+    );
   }
 
   String _formatDuration(Duration d) {
@@ -250,7 +362,8 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
     List<Widget> toStationWidgets = [
       // [수정] 300, 12번은 무조건 표시 (API 데이터 없으면 '정보 없음'으로)
       ..._createFixedBusList(['300', '12', '2']),
-      if (nextShuttleToStation != null) _buildShuttleCard(nextShuttleToStation!),
+      if (nextShuttleToStation != null)
+        _buildShuttleCard(nextShuttleToStation!),
     ];
 
     // 2. 한림대 방면 리스트 (300, 12, 2 + 셔틀)
@@ -262,7 +375,10 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('한림대 교통 정보', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          '한림대 교통 정보',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -276,9 +392,9 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
         children: [
           ListView(
             children: [
-              _buildSection('🚌 춘천역 방면', '한림대학교 정류장', toStationWidgets),
+              _buildSection('🚏 한림대학교 정류장', '춘천역 방면', toStationWidgets),
               const Divider(thickness: 8, color: Color(0xFFF0F0F0)),
-              _buildSection('🚌 한림대학교 방면', '춘천역 정류장', toHallymWidgets),
+              _buildSection('🚏 춘천역 정류장', '한림대학교 방면', toHallymWidgets),
             ],
           ),
           ListView(
@@ -287,7 +403,7 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
               _buildTrainSection('🚄 ITX-청춘', nextITX),
               // 필요 시 셔틀 시간표도 여기에 추가 가능
             ],
-          )
+          ),
         ],
       ),
     );
@@ -295,18 +411,37 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
 
   // UI 위젯 함수들
   Widget _buildSection(String title, String sub, List<Widget> items) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Padding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 8), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        Text(sub, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
-      ])),
-      ...items
-    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                sub,
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              ),
+            ],
+          ),
+        ),
+        ...items,
+      ],
+    );
   }
 
   Widget _buildBusCard(BusArrivalInfo bus) {
-    bool hasInfo = bus.remainingTime != '도착 정보 없음' && bus.remainingTime != '정보없음';
-    
+    bool hasInfo =
+        bus.remainingTime != '도착 정보 없음' && bus.remainingTime != '정보없음';
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       elevation: 2,
@@ -315,17 +450,43 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: ListTile(
           leading: Container(
-            width: 60, height: 60, alignment: Alignment.center,
-            decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.blue.shade200)),
-            child: Text(bus.routeNo, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.blue.shade800)),
+            width: 60,
+            height: 60,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.blue.shade200),
+            ),
+            child: Text(
+              bus.routeNo,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: Colors.blue.shade800,
+              ),
+            ),
           ),
-          title: Text('${bus.routeNo}번 버스', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const SizedBox(height: 4),
-            // 정보가 있을 때는 정거장 수 표시, 없으면 '-'
-            Text(hasInfo ? bus.remainingStations : '-'),
-          ]),
-          trailing: Text(bus.remainingTime, style: TextStyle(color: hasInfo ? Colors.red : Colors.grey, fontWeight: FontWeight.bold, fontSize: 16)),
+          title: Text(
+            '${bus.routeNo}번 버스',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              // 정보가 있을 때는 정거장 수 표시, 없으면 '-'
+              Text(hasInfo ? bus.remainingStations : '-'),
+            ],
+          ),
+          trailing: Text(
+            bus.remainingTime,
+            style: TextStyle(
+              color: hasInfo ? Colors.red : Colors.grey,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
         ),
       ),
     );
@@ -341,34 +502,84 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: ListTile(
           leading: Container(
-            width: 60, height: 60, alignment: Alignment.center,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.green)),
-            child: const Text("셔틀", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.green)),
+            width: 60,
+            height: 60,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.green),
+            ),
+            child: const Text(
+              "셔틀",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: Colors.green,
+              ),
+            ),
           ),
-          title: const Text('학교 셔틀버스', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const SizedBox(height: 4),
-            Text('다음 출발: ${s.departureTime}'),
-          ]),
-          trailing: Text(s.remainingToDeparture, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16)),
+          title: const Text(
+            '학교 셔틀버스',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              Text('다음 출발: ${s.departureTime}'),
+            ],
+          ),
+          trailing: Text(
+            s.remainingToDeparture,
+            style: const TextStyle(
+              color: Colors.red,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
         ),
       ),
     );
   }
-  
-  Widget _buildNoInfoCard(String msg) => Padding(padding: const EdgeInsets.all(16), child: Text(msg, style: const TextStyle(color: Colors.grey)));
-  
+
+  Widget _buildNoInfoCard(String msg) => Padding(
+    padding: const EdgeInsets.all(16),
+    child: Text(msg, style: const TextStyle(color: Colors.grey)),
+  );
+
   Widget _buildTrainSection(String title, ScheduleInfo? s) {
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Padding(padding: const EdgeInsets.all(16), child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
-      if (s != null) Card(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        color: s.routeNo == 'ITX-청춘' ? Colors.orange[50] : Colors.blue[50],
-        child: ListTile(
-          title: Text('다음: ${s.departureTime} (${s.destination})', style: const TextStyle(fontWeight: FontWeight.bold)),
-          trailing: Text(s.remainingToDeparture, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-        )
-      ) else _buildNoInfoCard('운행 종료')
-    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        if (s != null)
+          Card(
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            color: s.routeNo == 'ITX-청춘' ? Colors.orange[50] : Colors.blue[50],
+            child: ListTile(
+              title: Text(
+                '다음: ${s.departureTime} (${s.destination})',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              trailing: Text(
+                s.remainingToDeparture,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          )
+        else
+          _buildNoInfoCard('운행 종료'),
+      ],
+    );
   }
 }

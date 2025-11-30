@@ -6,7 +6,7 @@ import 'screens/bus_screen.dart';
 // 프로젝트 구조에 따라 다른 화면 파일들을 여기서 임포트해야 합니다.
 // 예시: import 'package:capstone_project/screens/map_screen.dart';
 
-// 🚨 [주의] 실제 앱 실행에 필요한 API URL, 지도, 버스, 학식 화면 위젯들은 
+// 🚨 [주의] 실제 앱 실행에 필요한 API URL, 지도, 버스, 학식 화면 위젯들은
 // 'screens/' 폴더 내의 다른 파일에 정의되어 있고, 여기서 불러와야 합니다.
 
 void main() {
@@ -27,11 +27,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         // 중요: 이 설정을 false로 해야 윈도우 환경의 셰이더 컴파일 오류(-1073741819)가 사라집니다.
-        useMaterial3: false, 
+        useMaterial3: false,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       // 홈 화면은 메인 페이지(하단 탭 바)를 관리하는 위젯으로 설정합니다.
-      home: const MainPage(), 
+      home: const MainPage(),
     );
   }
 }
@@ -67,22 +67,16 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('한림대 올인원 정보'),
+        title: const Text('Pika'),
         backgroundColor: Colors.blue.shade700,
       ),
       body: _widgetOptions.elementAt(_selectedIndex),
-      
+
       // 하단 네비게이션 바
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: '지도',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant),
-            label: '학식',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: '지도'),
+          BottomNavigationBarItem(icon: Icon(Icons.restaurant), label: '학식'),
           BottomNavigationBarItem(
             icon: Icon(Icons.directions_bus),
             label: '교통',

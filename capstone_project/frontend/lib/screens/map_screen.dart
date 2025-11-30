@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import '../secrets.dart';
 
 // [중요] Flask 서버 주소 설정 (본인의 IP 주소로 확인 필수)
-const String API_URL = 'http://10.170.209.27:5000/api';
+const String API_URL = 'http://61.99.11.106:5000/api';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
