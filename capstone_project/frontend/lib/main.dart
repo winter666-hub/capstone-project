@@ -52,7 +52,7 @@ class _MainPageState extends State<MainPage> {
   // 🚨 [TODO] 여기에 실제 Map, Cafeteria, Bus 스크린 위젯을 넣어주세요.
   // 예시: HallymMapScreen(), CafeteriaScreen(), BusArrivalScreen()
   final List<Widget> _widgetOptions = <Widget>[
-    const MapScreen(),
+    const HallymMapScreen(),
     const CafeteriaScreen(),
     const HallymBusArrivalScreen(),
   ];

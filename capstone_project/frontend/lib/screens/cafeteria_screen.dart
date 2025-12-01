@@ -45,8 +45,9 @@ class _CafeteriaScreenState extends State<CafeteriaScreen> {
             return Center(child: Text('오류: ${snapshot.error}'));
           } else if (snapshot.hasData) {
             final menuData = snapshot.data!;
-            if (menuData.menuList.isEmpty)
+            if (menuData.menuList.isEmpty) {
               return const Center(child: Text('메뉴 없음'));
+            }
 
             // [핵심 로직] 데이터를 "식당 구분 > 시간" 순으로 그룹화합니다.
             // Map<식당이름, Map<시간, List<메뉴>>> 구조

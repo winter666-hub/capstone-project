@@ -166,17 +166,19 @@ class _HallymBusArrivalScreenState extends State<HallymBusArrivalScreen>
           });
         }
       } else {
-        if (mounted)
+        if (mounted) {
           setState(() {
             _isLoading = false;
           });
+        }
       }
     } catch (e) {
       print('버스 로드 실패: $e');
-      if (mounted)
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
+      }
     }
   }
 
