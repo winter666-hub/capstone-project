@@ -120,7 +120,7 @@ def get_cafeteria_menu():
 
 
 # 지도 구현 ==========================================================================
-hallym_buildings = [
+hallym_buildings = [    
     {'id': 'main_gate', 'name': '정문', 'lat': 37.883970, 'lng': 127.737828, 'imageUrl': ''},
     {'id': 'CLC', 'name': 'Campus Life Center', 'lat': 37.886730, 'lng': 127.740115, 'imageUrl': ''},
     {'id': 'international', 'name': '국제관', 'lat': 37.886737, 'lng': 127.740924, 'imageUrl': ''},
@@ -668,7 +668,11 @@ def get_directions():
 @app.route('/', methods=['GET'])
 def index():
     """기본 접속 페이지입니다."""
+<<<<<<< HEAD
     return "백엔드 서버가 실행 중입니다."
+=======
+    return "백엔드 서버가 실행 중입니다. Flutter 앱은 /buildings와 /directions 엔드포인트를 사용합니다."
+>>>>>>> 3c38b4dbaa0a87441d4e6e5ee07b78a37afb24d4
 
 # 3. 버스 API 엔드포인트 추가 ===================================================================
 @app.route('/api/bus/arrival', methods=['GET'])
