@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 // [주소 설정] 본인의 IP 주소로 수정 필수!
-const String BUS_API_URL = 'http://61.99.11.106:5000/api/bus/arrival';
+//const String BUS_API_URL = 'http://61.99.11.106:5000/api/bus/arrival';
+const String BUS_API_URL =
+    'http://10.0.2.2:5000/api/bus/arrival'; // 에뮬레이터용 로컬호스트
 
 // 1. 데이터 모델
 class BusArrivalInfo {

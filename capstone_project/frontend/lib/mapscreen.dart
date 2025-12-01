@@ -383,17 +383,18 @@ class _HallymMapScreenState extends State<HallymMapScreen>
 
   // 경로 검색 탭 UI
   // map_screen.dart 파일의 _buildDirectionsTab() 함수 전체 (수정 후)
+  // map_screen.dart 파일의 _buildDirectionsTab() 함수 전체 교체
+
   Widget _buildDirectionsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          // ... (Dropdown 및 ElevatedButton 코드 유지)
           _buildDropdown(
             _selectedOrigin,
             '출발지를 선택하세요',
-            (newValue) => setState(() {
+                (newValue) => setState(() {
               _selectedOrigin = newValue;
               _selectedBuildingId = null;
             }),
@@ -402,7 +403,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
           _buildDropdown(
             _selectedDestination,
             '도착지를 선택하세요',
-            (newValue) => setState(() {
+                (newValue) => setState(() {
               _selectedDestination = newValue;
               _selectedBuildingId = null;
             }),
@@ -410,10 +411,10 @@ class _HallymMapScreenState extends State<HallymMapScreen>
           const SizedBox(height: 15),
           ElevatedButton(
             onPressed:
-                (_selectedOrigin != null &&
-                    _selectedDestination != null &&
-                    _selectedOrigin != _selectedDestination &&
-                    !_isLoading)
+            (_selectedOrigin != null &&
+                _selectedDestination != null &&
+                _selectedOrigin != _selectedDestination &&
+                !_isLoading)
                 ? _fetchDirections
                 : null,
             child: _isLoading && _directions == null
@@ -421,10 +422,10 @@ class _HallymMapScreenState extends State<HallymMapScreen>
                 : const Text('경로 검색'),
           ),
 
-          // --- 🚨 경로 검색 결과 및 오류 표시 영역 (추가/수정된 부분) ---
+          // --- 🚨 경로 검색 결과 및 오류 표시 영역 (추가된 부분) ---
           const SizedBox(height: 20),
 
-          // 1. 로딩 중 표시 (버튼의 로딩 인디케이터와 분리)
+          // 1. 로딩 중 표시
           if (_isLoading && _directions == null)
             const Center(child: CircularProgressIndicator()),
 
@@ -448,53 +449,54 @@ class _HallymMapScreenState extends State<HallymMapScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: _directions!.routes.isNotEmpty
                   ? _directions!.routes.map((route) {
-                      final index = _directions!.routes.indexOf(route);
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                final index = _directions!.routes.indexOf(route);
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ExpansionTile(
+                    collapsedBackgroundColor: Colors.blue.shade50,
+                    backgroundColor: Colors.white,
+                    title: Text(
+                      '${index + 1}. ${route.summary}',
+                      style:
+                      const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      '총 거리: ${route.distance}',
+                      style: TextStyle(color: Colors.blue.shade700),
+                    ),
+                    children: route.steps.map((step) {
+                      return ListTile(
+                        leading: const Icon(
+                          Icons.directions_walk,
+                          color: Colors.blue,
                         ),
-                        child: ExpansionTile(
-                          collapsedBackgroundColor: Colors.blue.shade50,
-                          backgroundColor: Colors.white,
-                          title: Text(
-                            '${index + 1}. ${route.summary}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                            '총 거리: ${route.distance}',
-                            style: TextStyle(color: Colors.blue.shade700),
-                          ),
-                          children: route.steps.map((step) {
-                            return ListTile(
-                              leading: const Icon(
-                                Icons.directions_walk,
-                                color: Colors.blue,
-                              ),
-                              title: Text(step.instructions),
-                              trailing: Text(step.distance),
-                            );
-                          }).toList(),
-                        ),
+                        title: Text(step.instructions),
+                        trailing: Text(step.distance),
                       );
-                    }).toList()
+                    }).toList(),
+                  ),
+                );
+              }).toList()
                   : [
-                      // 4. 경로를 찾았으나 경로가 비어있는 경우 (404 응답 등)
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            "경로를 찾을 수 없습니다. 다른 경로를 시도해 보세요.",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
+                // 4. 경로를 찾았으나 경로가 비어있는 경우 (경로를 찾을 수 없음)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      "경로를 찾을 수 없습니다. 다른 경로를 시도해 보세요.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontStyle: FontStyle.italic,
                       ),
-                    ],
+                    ),
+                  ),
+                ),
+              ],
             ),
 
           // 5. 초기 안내 메시지

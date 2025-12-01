@@ -5,69 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e732b45d-de6b-41f3-bf0f-7cc6de8769d1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/AndroidProjectSystem.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/capstone-project.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/deviceManager.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.vscode/c_cpp_properties.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.vscode/launch.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.vscode/settings.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/capstone_project.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/deviceManager.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/Basketball_court.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/CLC.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/Golf_range.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/Hallym_Rec_Center.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/Hallym_University_Hospital.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/ILSONG_Stadium.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/In_Tennis.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/Out_Tennis.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/Parking_lot.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/basic_education.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/basic_education.png.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/dorm_1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/dorm_2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/dorm_3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/dorm_4.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/dorm_5.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/dorm_6.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/dorm_7.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/dorm_8.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/engineering.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/forest_of_life.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/humanities_2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/ilsong_arthall.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/ilsong_garden.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/industry_acad_coop.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/international.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/international_conf.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/library.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/life_science.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/main_gate.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/main_hall_annex.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/main_hall_humanities_1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/med_bio_research.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/medicine_hall.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/natural_science.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/sasaek_gil.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/social_science_first.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/social_science_second.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/sports_equipment.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/images/ssireum_ring.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/mapscreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/mapscreen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/screens/bus_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/screens/bus_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/screens/map_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/screens/map_screen.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -102,7 +43,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "fix/map-decode-logic",
+    "git-widget-placeholder": "integration/bus-test",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/arong/Capstone/capstone-project/capstone_project",

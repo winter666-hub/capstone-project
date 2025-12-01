@@ -8,7 +8,8 @@ import 'package:http/http.dart' as http;
 import '../secrets.dart';
 
 // [중요] Flask 서버 주소 설정 (본인의 IP 주소로 확인 필수)
-const String API_URL = 'http://61.99.11.106:5000/api';
+//const String API_URL = 'http://61.99.11.106:5000/api';
+const String API_URL = 'http://10.0.2.2:5000/api'; // 에뮬레이터용 로컬호스트
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -295,6 +296,8 @@ class _MapScreenState extends State<MapScreen>
     );
   }
 
+  // map_screen.dart 파일에서 _buildDirectionsTab() 함수를 찾아 전체 교체
+
   Widget _buildDirectionsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -331,7 +334,96 @@ class _MapScreenState extends State<MapScreen>
                 ? const CircularProgressIndicator(color: Colors.white)
                 : const Text('경로 검색'),
           ),
-          // ... (에러 메시지 및 경로 리스트 표시 UI 유지)
+
+          // --- 🚨 경로 검색 결과 및 오류 표시 영역 (추가된 부분) ---
+          const SizedBox(height: 20),
+
+          // 1. 로딩 중 표시
+          if (_isLoading && _directions == null)
+            const Center(child: CircularProgressIndicator()),
+
+          // 2. 오류 메시지 표시
+          if (_errorMessage != null &&
+              _directions == null) // 경로 데이터가 아예 없을 때만 표시
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+          // 3. 경로 검색 결과 표시
+          if (_directions != null)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _directions!.routes.isNotEmpty
+                  ? _directions!.routes.map((route) {
+                      final index = _directions!.routes.indexOf(route);
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ExpansionTile(
+                          collapsedBackgroundColor: Colors.blue.shade50,
+                          backgroundColor: Colors.white,
+                          title: Text(
+                            '${index + 1}. ${route.summary}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text(
+                            '총 거리: ${route.distance}',
+                            style: TextStyle(color: Colors.blue.shade700),
+                          ),
+                          children: route.steps.map((step) {
+                            return ListTile(
+                              leading: const Icon(
+                                Icons.directions_walk,
+                                color: Colors.blue,
+                              ),
+                              title: Text(step.instructions),
+                              trailing: Text(step.distance),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    }).toList()
+                  : [
+                      // 4. 경로를 찾았으나 경로가 비어있는 경우 (경로를 찾을 수 없음)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            _errorMessage ?? "경로를 찾을 수 없습니다. 다른 경로를 시도해 보세요.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+            ),
+
+          // 5. 초기 안내 메시지
+          if (_directions == null &&
+              !_isLoading &&
+              _errorMessage == null &&
+              _buildings.isNotEmpty)
+            const Center(
+              child: Text(
+                "출발지와 도착지를 선택하고 검색해주세요.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
         ],
       ),
     );
