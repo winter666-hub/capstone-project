@@ -33,7 +33,7 @@ class Building {
   }
 }
 
-// --- 데이터 모델: 경로 (다시 추가) ---
+// --- 데이터 모델: 경로 ---
 class Step {
   final String instructions;
   final String distance;
@@ -187,7 +187,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
 
   final String _defaultAssetImage = 'assets/images/default_building.jpg';
 
-  // 백엔드 경로 데이터에 사용되었으나 건물 목록에 ID가 없는 항목을 처리
+  // 백엔드 경로 데이터에 사용되었으나 건물 목록에 ID가 없는 항목을 처리 (경로 검색 드롭다운용)
   String _mapNameToId(String name) {
     // 일송기념도서관은 실제로 대학본부 인근에 있지만, 편의상 'main_hall_humanities_1'의 ID를 사용하거나,
     // 데이터에 없는 임의의 ID를 사용하여 이미지 맵에 매핑할 수 있습니다.
@@ -209,10 +209,11 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     return building.id;
   }
 
-  String _getImagePathForBuildingName(String name) {
-    final buildingId = _mapNameToId(name);
-    return _imageMap[buildingId] ?? _defaultAssetImage;
-  }
+  // 이 함수는 건물 ID를 기준으로 이미지 경로를 찾는 것이 더 명확하므로 제거하고 _imageMap을 직접 사용합니다.
+  // String _getImagePathForBuildingName(String name) {
+  //   final buildingId = _mapNameToId(name);
+  //   return _imageMap[buildingId] ?? _defaultAssetImage;
+  // }
 
   @override
   void initState() {
@@ -283,7 +284,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     }
   }
 
-  // --- 데이터 패칭: 경로 검색 (복원) ---
+  // --- 데이터 패칭: 경로 검색 ---
   Future<void> _fetchDirections() async {
     if (_selectedOrigin == null ||
         _selectedDestination == null ||
@@ -329,7 +330,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     }
   }
 
-  // 드롭다운 위젯 빌더 (복원)
+  // 드롭다운 위젯 빌더
   Widget _buildDropdown(
     String? selectedValue,
     String hint,
@@ -363,7 +364,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     );
   }
 
-  // 경로 검색 탭 UI (복원)
+  // 경로 검색 탭 UI
   Widget _buildDirectionsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -436,7 +437,6 @@ class _HallymMapScreenState extends State<HallymMapScreen>
                 ),
               ),
             ),
-
           if (_directions != null) _buildDirectionsResult(_directions!),
         ],
       ),
@@ -512,7 +512,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
 
   // --- 건물 목록 탭 UI (BuildingListTab) ---
   Widget _buildBuildingListTab() {
-    if (_isLoading) {
+    if (_isLoading && _buildings.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -539,23 +539,42 @@ class _HallymMapScreenState extends State<HallymMapScreen>
       );
     }
 
+    // 데이터 로드에 실패했거나, 목록이 비어있다면 빈 화면 표시
+    if (_buildings.isEmpty) {
+      return Center(child: Text('표시할 건물이 없습니다. 네트워크 상태를 확인하고 다시 로드해주세요.'));
+    }
+
     // 건물 목록 표시
     return ListView.builder(
       itemCount: _buildings.length,
       itemBuilder: (context, index) {
         final building = _buildings[index];
         final isSelected = building.id == _selectedBuildingId;
-        final imagePath = _getImagePathForBuildingName(building.name);
+
+        // 1. _imageMap에서 로컬 이미지 경로를 찾습니다.
+        final imagePath = _imageMap[building.id] ?? _defaultAssetImage;
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           elevation: 4,
           child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.blue.shade100,
-              child: Text(
-                building.name[0],
-                style: TextStyle(color: Colors.blue.shade700),
+            // 2. leading 위젯을 Image.asset으로 대체합니다.
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0), // 둥근 모서리 설정
+              child: Image.asset(
+                imagePath, // 맵에서 찾은 로컬 이미지 경로
+                width: 50, // 목록에 맞는 크기 설정
+                height: 50,
+                fit: BoxFit.cover, // 이미지를 채우는 방식 설정
+                errorBuilder: (context, error, stackTrace) {
+                  // 이미지를 로드할 수 없을 때 기본 아이콘 표시
+                  return Container(
+                    width: 50,
+                    height: 50,
+                    color: Colors.grey.shade200,
+                    child: const Icon(Icons.broken_image, color: Colors.grey),
+                  );
+                },
               ),
             ),
             title: Text(
@@ -568,8 +587,18 @@ class _HallymMapScreenState extends State<HallymMapScreen>
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               setState(() {
-                _selectedBuildingId = isSelected ? null : building.id; // 선택 토글
+                // 선택 토글: 이미 선택된 건물을 다시 탭하면 선택 해제하고 닫기
+                _selectedBuildingId = isSelected ? null : building.id;
               });
+
+              // 새로운 건물을 선택하거나 (isSelected가 false), 현재 선택된 건물을 해제할 때
+              if (!isSelected && _selectedBuildingId != null) {
+                // 새로운 건물이 선택된 경우, 드로어를 엽니다.
+                Scaffold.of(context).openEndDrawer();
+              } else if (isSelected) {
+                // 선택 해제된 경우, 드로어를 닫습니다. (Navigator.pop(context)는 현재 Scaffold 컨텍스트의 드로어를 닫습니다)
+                Navigator.pop(context);
+              }
             },
           ),
         );
@@ -577,33 +606,13 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     );
   }
 
-  // --- 메인 빌드 메서드 ---
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('한림 캠퍼스 가이드'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const <Widget>[
-            Tab(icon: Icon(Icons.route), text: '경로 검색'),
-            Tab(icon: Icon(Icons.business), text: '건물 목록'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: <Widget>[_buildDirectionsTab(), _buildBuildingListTab()],
-      ),
-      // 선택된 건물이 있을 경우 상세 정보 패널 표시
-      endDrawer: _selectedBuildingId != null
-          ? _buildBuildingDetailDrawer()
-          : null,
-    );
-  }
-
   // --- 건물 상세 정보 드로어 (우측 슬라이드 패널) ---
   Widget _buildBuildingDetailDrawer() {
+    // _selectedBuildingId가 null인 경우에도 호출될 수 있으므로, 방어 코드 추가
+    if (_selectedBuildingId == null) {
+      return const SizedBox.shrink();
+    }
+
     final selectedBuilding = _buildings.firstWhere(
       (b) => b.id == _selectedBuildingId,
       orElse: () =>
@@ -613,9 +622,11 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     // 건물이 존재하지 않으면 드로어를 표시하지 않습니다.
     if (selectedBuilding.id.isEmpty) return const SizedBox.shrink();
 
-    final imagePath = _getImagePathForBuildingName(selectedBuilding.name);
+    final imagePath =
+        _imageMap[selectedBuilding.id] ?? _defaultAssetImage; // ID 사용
 
     return Drawer(
+      width: MediaQuery.of(context).size.width * 0.8, // 드로어 너비 설정 (옵션)
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -634,16 +645,19 @@ class _HallymMapScreenState extends State<HallymMapScreen>
                       return Image.asset(_defaultAssetImage, fit: BoxFit.cover);
                     },
                   ),
-                  Align(
-                    alignment: Alignment.bottomLeft,
+                  // 건물 이름 오버레이
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
                     child: Container(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(12.0),
                       color: Colors.black54,
                       child: Text(
                         selectedBuilding.name,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 20,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -652,7 +666,6 @@ class _HallymMapScreenState extends State<HallymMapScreen>
                 ],
               ),
             ),
-
             // 상세 정보
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -742,6 +755,32 @@ class _HallymMapScreenState extends State<HallymMapScreen>
           Expanded(child: Text(value)),
         ],
       ),
+    );
+  }
+
+  // --- 메인 빌드 메서드 ---
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('한림 캠퍼스 가이드'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const <Widget>[
+            Tab(icon: Icon(Icons.route), text: '경로 검색'),
+            Tab(icon: Icon(Icons.business), text: '건물 목록'),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: <Widget>[_buildDirectionsTab(), _buildBuildingListTab()],
+      ),
+      // 선택된 건물이 있을 경우에만 endDrawer를 설정합니다.
+      // 이 때 _buildBuildingDetailDrawer()는 Drawer 또는 SizedBox.shrink()를 반환할 수 있습니다.
+      endDrawer: _selectedBuildingId != null
+          ? _buildBuildingDetailDrawer()
+          : null,
     );
   }
 }
