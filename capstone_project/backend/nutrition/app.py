@@ -120,7 +120,6 @@ def get_cafeteria_menu():
 
 
 # 지도 구현 ==========================================================================
-# 지도 구현 ==========================================================================
 hallym_buildings = [    
     {'id': 'main_gate', 'name': '정문', 'lat': 37.883970, 'lng': 127.737828, 'imageUrl': ''},
     {'id': 'CLC', 'name': 'Campus Life Center', 'lat': 37.886730, 'lng': 127.740115, 'imageUrl': ''},
@@ -225,10 +224,6 @@ Hallym_Routes = {
         'routes': [
              {
                  'summary': '가장 빠른 경로',
-<<<<<<< HEAD
-=======
-                 # ⚠️ 거리 합계 수정: 300m + 250m + 250m + 500m = 1300m
->>>>>>> 9d7ec6678285ccc47e5a3ecfa8695f9d76785f0c
                  'distance': '600m', 
                  'steps': [
                      {'instructions': '정문에서 도서관으로 직진합니다.', 'distance': '100m'},
@@ -239,10 +234,6 @@ Hallym_Routes = {
              },
              {
                  'summary': '우회경로',
-<<<<<<< HEAD
-=======
-                 # ⚠️ 거리 합계 수정: 300m + 250m + 250m + 300m = 1100m
->>>>>>> 9d7ec6678285ccc47e5a3ecfa8695f9d76785f0c
                  'distance': '600m', 
                  'steps': [
                      {'instructions': '정문에서 도서관으로 직진합니다.', 'distance': '100m'},
@@ -256,11 +247,7 @@ Hallym_Routes = {
 
 
     # 1. 정문 -> 대학본부인문1관
-<<<<<<< HEAD
     'main_gate_to_main_hall_humanities_1': { 
-=======
-    'main_gate_to_main_hall': { 
->>>>>>> 9d7ec6678285ccc47e5a3ecfa8695f9d76785f0c
         'start': '정문',
         'end': '대학본부인문1관',
         'routes': [
@@ -276,11 +263,7 @@ Hallym_Routes = {
     },
     
     # 2. 정문 -> 학생생활관 8관
-<<<<<<< HEAD
     'main_gate_to_dorm_8': {
-=======
-    'main_gate_to_domitory8': {
->>>>>>> 9d7ec6678285ccc47e5a3ecfa8695f9d76785f0c
         'start': '정문',
         'end': '학생생활관 8관',
         'routes': [
@@ -384,7 +367,6 @@ Hallym_Routes = {
     'main_gate_to_library': { 
         'start': '정문', 
         'end': '일송기념도서관',
-<<<<<<< HEAD
         'routes': [
              {
                  'summary': '빠른 경로',
@@ -463,86 +445,6 @@ Hallym_Routes = {
         'start': '정문', 
         'end': '학생생활관 6관', 
         'routes': [
-=======
-        'routes': [
-             {
-                 'summary': '빠른 경로',
-                 'distance': '450m', 
-                 'steps': [
-                     {'instructions': '정문에서 포세이돈 분수 쪽으로 갑니다.', 'distance': '200m'},
-                     {'instructions': '계단을 올라 일송 기념 도서관 정문으로 진입합니다.', 'distance': '250m'}
-                 ]
-             }, 
-             {
-                 'summary': '우회 경로',
-                 'distance': '450m',
-                 'steps': [ 
-                     {'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '200m'},
-                     {'instructions': '인문 1관에서 사색의 길을 걷다가 좌회전합니다.', 'distance': '150m'},
-                     {'instructions': '도서관 후문에 도착합니다.', 'distance': '100m'}
-                 ]
-             }
-        ]
-    },
-
-    # 8. 정문 -> 학생생활관 1관
-    'main_gate_to_domitory1': { 
-        'start': '정문', 
-        'end': '학생생활관 1관', 
-        'routes': [{ 'summary': '직선 경로', 
-                     'distance': '300m', 
-                     'steps': [{'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '100m'}, 
-                               {'instructions': 'CLC에서 우회전해서 가다가 자회전해서 학생생활관 방향으로 갑니다.', 'distance': '75m'}, 
-                               {'instructions': '직진하다가 학생생활관 1관에 도착합니다.', 'distance': '125m'}]}]},
-    
-    # 9. 정문 -> 학생생활관 2관
-    'main_gate_to_domitory2': 
-    { 'start': '정문', 
-     'end': '학생생활관 2관', 
-     'routes': [{ 'summary': '직선 경로', 
-                   'distance': '375m', 
-                   'steps': [{'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '150m'}, 
-                             {'instructions': 'CLC에서 우회전해서 가다가 자회잔해서 학생생활관 방향으로 갑니다.', 'distance': '100m'}, 
-                             {'instructions': '직진하다가 학생생활관 2관에 도착합니다.', 'distance': '125m'},
-]
-}]},
-    
-    # 10. 정문 -> 학생생활관 3관
-    'main_gate_to_domitory3': 
-    { 'start': '정문', 
-    'end': '학생생활관 3관', 
-        'routes': [{ 'summary': '직선 경로', 
-                 'distance': '450m', 
-                 'steps': [{'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '200m'}, 
-                           {'instructions': 'CLC에서 우회전해서 가다가 자회잔해서 학생생활관 방향으로 갑니다.', 'distance': '125m'}, 
-                           {'instructions': '직진하다가 학생생활관 3관에 도착합니다.', 'distance': '125m'}]}]}, 
-    
-    # 11. 정문 -> 학생생활관 4관
-    'main_gate_to_domitory4': 
-    { 'start': '정문', 
-     'end': '학생생활관 4관', 
-     'routes': [{ 'summary': '직선 경로', 
-                   'distance': '525m', 
-                   'steps': [{'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '250m'}, 
-                             {'instructions': 'CLC에서 우회전해서 가다가 자회잔해서 학생생활관 방향으로 갑니다.', 'distance': '150m'}, 
-                             {'instructions': '직진하다가 학생생활관 4관에 도착합니다.', 'distance': '125m'}]}]},
-    
-    # 12. 정문 -> 학생생활관 5관
-    'main_gate_to_domitory5': 
-    { 'start': '정문', 
-     'end': '학생생활관 5관', 
-     'routes': [{ 'summary': '직선 경로', 
-                   'distance': '600m', 
-                   'steps': [{'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '300m'}, 
-                             {'instructions': 'CLC에서 우회전해서 가다가 자회잔해서 학생생활관 방향으로 갑니다.', 'distance': '175m'}, 
-                             {'instructions': '직진하다가 학생생활관 5관에 도착합니다.', 'distance': '125m'}]}]}, 
-    
-    # 13. 정문 -> 학생생활관 6관
-    'main_gate_to_domitory6': { 
-        'start': '정문', 
-        'end': '학생생활관 6관', 
-        'routes': [
->>>>>>> 9d7ec6678285ccc47e5a3ecfa8695f9d76785f0c
              { 'summary': '직선 경로', 
              'distance': '675m', 
                        'steps': [{'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '350m'}, 
@@ -550,11 +452,7 @@ Hallym_Routes = {
                                  {'instructions': '직진하다가 학생생활관 6관에 도착합니다.', 'distance': '125m'}]}]}, 
     
     # 14. 정문 -> 학생생활관 7관
-<<<<<<< HEAD
     'main_gate_to_dorm_7': {
-=======
-    'main_gate_to_domitory7': {
->>>>>>> 9d7ec6678285ccc47e5a3ecfa8695f9d76785f0c
         'start': '정문', 
         'end': '학생생활관 7관',
         'routes': [
@@ -617,11 +515,7 @@ Hallym_Routes = {
     },
     
     # 19. 정문 -> 한림대학교 춘천성심병원
-<<<<<<< HEAD
     'main_gate_to_Hallym_Hospital': { 
-=======
-    'main_gate_to_hospital': { 
->>>>>>> 9d7ec6678285ccc47e5a3ecfa8695f9d76785f0c
         'start': '정문', 
         'end': '한림대학교 춘천성심병원', 
         'routes': [{'summary': '직선 경로', 
@@ -629,11 +523,7 @@ Hallym_Routes = {
                      'steps': [{'instructions': '정문에서 좌회전하여 병원 방향으로 갑니다.', 'distance': '500m'}]}]},
     
     # 20. 정문 -> 주차장 1
-<<<<<<< HEAD
     'main_gate_to_Parking_lot_1': { 
-=======
-    'main_gate_to_parking_lot1': { 
->>>>>>> 9d7ec6678285ccc47e5a3ecfa8695f9d76785f0c
         'start': '정문', 
         'end': '주차장 1', 
         'routes': [{'summary': '직선 경로', 
@@ -647,21 +537,8 @@ Hallym_Routes = {
         'routes': [{ 'summary': '직선 경로', 
                      'distance': '800m', 
                      'steps': [{'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '400m'}, 
-<<<<<<< HEAD
                                {'instructions': 'CLC에서 온른쪽으로 걸어가다가 왼쪽에 있는 계단을 타고 내려가면 Ilsong Stadium 방향으로 갑니다.', 'distance': '400m'}]}]},
 
-=======
-                               {'instructions': 'CLC에서 1시방향으로 걸어가 H Stadium 방향으로 갑니다.', 'distance': '400m'}]}]},
-    
-    # 22. 정문 -> H Stadium
-    'main_gate_to_H_Stadium': { 
-        'start': '정문', 
-        'end': 'H Stadium', 
-        'routes': [{'summary': '직선 경로', 
-                     'distance': '900m', 
-                     'steps': [{'instructions': '정문에서 CLC 방향으로 직진합니다.', 'distance': '450m'}, 
-                               {'instructions': 'CLC에서 1시방향으로 걸어가 H Stadium 방향으로 갑니다.', 'distance': '450m'}]}]},
->>>>>>> 9d7ec6678285ccc47e5a3ecfa8695f9d76785f0c
     
     # 23. 정문 -> 자연과학관
     'main_gate_to_natural_science': { 
@@ -682,11 +559,7 @@ Hallym_Routes = {
                                {'instructions': '도서관옆에 있는 계단을 타고 생명과학관 방향으로 갑니다.', 'distance': '250m'}]}]},
     
     # 25. 정문 -> 의학관
-<<<<<<< HEAD
     'main_gate_to_med_bio_research': { 
-=======
-    'main_gate_to_medicine_hall': { 
->>>>>>> 9d7ec6678285ccc47e5a3ecfa8695f9d76785f0c
         'start': '정문', 
         'end': '의학관', 
         'routes': [{'summary': '직선 경로', 
