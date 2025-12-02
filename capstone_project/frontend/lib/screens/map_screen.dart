@@ -160,7 +160,7 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     'social_science_second': 'assets/images/social_science_second.jpg',
     'Ilsong_ArtHall': 'assets/images/ilsong_arthall.jpg',
     'forest_of_life': 'assets/images/forest_of_life.jpg',
-    'sasaek_gil': 'assets/images/sasaek_gil.jpg',
+    'sasaek_gil': 'assets/images/sasek_gil.jpg',
     'ilsong_garden': 'assets/images/ilsong_garden.jpg',
     'dorm_1': 'assets/images/dorm_1.jpg',
     'dorm_2': 'assets/images/dorm_2.jpg',
@@ -175,14 +175,14 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     'Basketball_court': 'assets/images/Basketball_court.jpg',
     'ILSONG_Stadium': 'assets/images/ILSONG_Stadium.jpg',
     'In_Tennis': 'assets/images/In_Tennis.jpg',
-    'ssireum_ring': 'assets/images/ssireum_ring.jpg',
+    'ssireum_ring': 'assets/images/ssirum_ring.jpg',
     'sports_equipment': 'assets/images/sports_equipment.jpg',
     'Parking_lot_1': 'assets/images/Parking_lot.jpg',
     'Hallym_Hospital': 'assets/images/Hallym_University_Hospital.jpg',
     // 백엔드 경로 데이터에 '일송기념도서관'이 사용되므로, 이를 'main_hall_humanities_1'의 다른 이름으로 임시 처리
     '일송기념도서관': 'assets/images/library.jpg',
-    'H Stadium':
-        'assets/images/ILSONG_Stadium.jpg', // 백엔드 경로 데이터에 H Stadium이 사용됨
+
+    //H Stadium 삭제
   };
 
   final String _defaultAssetImage = 'assets/images/default_building.jpg';
@@ -192,8 +192,9 @@ class _HallymMapScreenState extends State<HallymMapScreen>
     // 일송기념도서관은 실제로 대학본부 인근에 있지만, 편의상 'main_hall_humanities_1'의 ID를 사용하거나,
     // 데이터에 없는 임의의 ID를 사용하여 이미지 맵에 매핑할 수 있습니다.
     if (name == '일송기념도서관') return 'library'; // 임시 ID
-    if (name == 'H Stadium')
-      return 'ILSONG_Stadium'; // ILSONG Stadium과 동일한 ID 사용
+    // H Stadium은 이미지 맵에서 제거되었으므로, 매핑하지 않음
+    if (name == '정문') return 'main_gate';
+    // **[로그 기반 추가]** 자주 검색되는 이름에 대한 ID 매핑 추가
 
     // 일반적인 건물 이름 매핑
     final building = _buildings.firstWhere(
@@ -288,8 +289,9 @@ class _HallymMapScreenState extends State<HallymMapScreen>
   Future<void> _fetchDirections() async {
     if (_selectedOrigin == null ||
         _selectedDestination == null ||
-        _selectedOrigin == _selectedDestination)
+        _selectedOrigin == _selectedDestination) {
       return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -498,14 +500,14 @@ class _HallymMapScreenState extends State<HallymMapScreen>
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 ),
               ],
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
